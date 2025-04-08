@@ -1,12 +1,16 @@
-# React + Vite
+# ✔️ Commit Type
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- feat : 새로운 기능에 대한 커밋
+- fix : 수정에 대한 커밋
+- build : 빌드 관련 파일 수정에 대한 커밋
+- chore : 자잘한 수정에 대한 커밋
+- docs : 문서 수정에 대한 커밋
+- style : UI 관련된 모든 커밋
+- refactor : 코드 리팩토링에 대한 커밋
+- test : 테스트 코드 수정에 대한 커밋
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# 🪃 브랜치 규칙
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 이슈 생성 -> create branch -> **이슈타입/브랜치이름-이슈번호**
