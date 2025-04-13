@@ -44,7 +44,6 @@ export default Header;
 const HeaderContainer = styled.div`
   height: 75px;
   background-color: #fff;
-  border-bottom: 1px solid #12464C;
   display: flex;
   align-items: center;
   justify-content: space-between;
