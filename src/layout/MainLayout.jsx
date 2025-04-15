@@ -16,6 +16,5 @@ const MainLayout = () => {
 export default MainLayout;
 
 const ContentWrapper = styled.div`
-  margin-left: 160px;
-  margin-right: 175px;
+  margin: 0 168px;
 `;

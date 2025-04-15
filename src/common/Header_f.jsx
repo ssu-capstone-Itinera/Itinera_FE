@@ -1,11 +1,14 @@
 import React from 'react'
-import Logo from '../assets/icons/Logo.jsx'
 import styled from 'styled-components';
+
+import Logo from '../assets/icons/Logo.jsx'
 import HomeLogo from '../assets/icons/HomeLogo.jsx';
 import CommunityIcon from '../assets/icons/CommunityIcon.jsx';
 import DayIcon from '../assets/icons/DayIcon.jsx';
 
-const Header = () => {
+
+
+const Header_f = () => {
   return (
     <HeaderContainer>
       <HeaderLogo>
@@ -41,7 +44,7 @@ const Header = () => {
 
 
 
-export default Header;
+export default Header_f;
 
 const HeaderContainer = styled.div`
   /* 헤더 */
@@ -51,7 +54,7 @@ const HeaderContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 168px;
+  //padding: 0px 168px;
 
   height: 65px;
 
