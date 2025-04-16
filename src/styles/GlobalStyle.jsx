@@ -6,6 +6,7 @@ const GlobalStyles = createGlobalStyle`
 body {
   margin: 0;
   font-family: 'Pretendard';
+  font-style: normal;
 }
 `;
 export default GlobalStyles;
