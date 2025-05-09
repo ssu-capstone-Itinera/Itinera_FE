@@ -6,6 +6,7 @@ import MainLayout_f from './layout/MainLayout_f';
 
 import Home from './pages/home/Home';
 import Login from './pages/login/Login';
+import Select from './pages/plan/select/Select';
 
 function App() {
   return (
@@ -13,10 +14,11 @@ function App() {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
         </Route>
 
         <Route path="/" element={<MainLayout_f />}>
-          <Route path="/login" element={<Login />} />
+          <Route path="/plan/select" element={<Select />} /> 
         </Route>
       </Routes>
     </Router>
