@@ -1,7 +1,7 @@
 import React from "react"
 import styled from "styled-components";
 
-import KakaoLogo from '/Kakao.svg';
+import KakaoIcon from "../../assets/icons/KakaoIcon";
 
 const Login = () => {
     const KAKAO_AUTH_LINK = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_REST_API_KEY}&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
@@ -17,7 +17,7 @@ const Login = () => {
                     로그인
                 </Title>
                 <KakaoLoginButton type='button' onClick={loginHandler}>
-                    <img src={KakaoLogo} />
+                    <KakaoIcon />
                     <LoginBtnText>카카오 로그인</LoginBtnText>
                 </KakaoLoginButton>
             </LoginContainer>
