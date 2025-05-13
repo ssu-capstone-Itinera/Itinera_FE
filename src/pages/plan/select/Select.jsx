@@ -13,7 +13,7 @@ import SelectedIc from '../../../assets/icons/SelectedIc';
 import SearchView from "./SearchView";
 import CategoryView from "./CategoryView";
 import SelectedView from "./SelectedView";
-import PlaceDetail from "./PlaceDetail";
+import PlaceDetail from "../PlaceDetail";
 
 import GoogleMap from "../GoogleMap";
 
@@ -26,7 +26,6 @@ const TagData = [
 
 const sampleData = [
   {
-    id: 1,
     "place": {
       "createdDate": null,
       "updatedDate": null,
@@ -35,7 +34,8 @@ const sampleData = [
       "placeGoogleId": "ChIJN2x0fu2ifDUR51BupseGYmE",
       "name": "국립중앙박물관",
       "address": "대한민국 서울특별시 용산구 서빙고로 137",
-      "location": null,
+      "lat": 37.523,
+      "lng": 126.980,
       "rating": 2.7,
       "phoneNumber": "02-2077-9000",
       "webSite": "https://www.museum.go.kr/",
@@ -68,7 +68,6 @@ const sampleData = [
     }
   },
   {
-    id: 2,
     "place": {
       "createdDate": null,
       "updatedDate": null,
@@ -77,7 +76,8 @@ const sampleData = [
       "placeGoogleId": "ChIJCwhNvwGjfDUR_Sq2kpWoUT4",
       "name": "경복궁 식당",
       "address": "대한민국 서울특별시 용산구 서빙고로 137",
-      "location": null,
+      "lat": 37.575,
+      "lng": 126.976,
       "rating": 4.7,
       "phoneNumber": "02-725-6561",
       "webSite": "https://www.minarirest.com/",
@@ -105,7 +105,7 @@ const sampleData = [
       ],
       "searchFilters": null
     }
-  }
+  },
 ];
 
 const TabData = [
@@ -136,7 +136,7 @@ const Select = () => {
   const [checkedMap, setCheckedMap] = useState({});
   const [activeTab, setActiveTab] = useState(1);
   const [selectedPlace, setSelectedPlace] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 
   const {
@@ -159,13 +159,18 @@ const Select = () => {
   }
   const activeTabData = TabData.find((tab) => tab.id === activeTab);
   const isAnyChecked = Object.values(checkedMap).some((v) => v === true);
+  const selectedPlaces = sampleData.filter(item => checkedMap[item.place.id]);
 
   useEffect(() => {
     setSelectedPlace(null);
   }, [activeTab]);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
+    setIsSidebarOpen((prev) => {
+      if(!selectedPlace) return false;
+        return !prev;
+      }
+    );
   };
 
   return (
@@ -206,23 +211,21 @@ const Select = () => {
               </Tab>
             ))}
           </TabContainer>
-          <div>
-            <ListScrollWrapper
-              ref={scrollRef}
-              onMouseDown={handleMouseDown}
-              onMouseLeave={handleMouseLeave}
-              onMouseUp={handleMouseUp}
-              onMouseMove={handleMouseMove}
-            >
-              {typeof activeTabData.content === 'function'
-                ? activeTabData.content({
-                  data: sampleData, checkedMap, toggleCheckbox,
-                  selectedPlace, onSelectPlace: setSelectedPlace,
-                  onSidebarOpen: setIsSidebarOpen
-                })
-                : activeTabData.content}
-            </ListScrollWrapper>
-          </div>
+          <ListScrollWrapper
+            ref={scrollRef}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+          >
+            {typeof activeTabData.content === 'function'
+              ? activeTabData.content({
+                data: sampleData, checkedMap, toggleCheckbox,
+                selectedPlace, onSelectPlace: setSelectedPlace,
+                onSidebarOpen: setIsSidebarOpen
+              })
+              : activeTabData.content}
+          </ListScrollWrapper>
         </SidebarMain>
 
         <SidebarBottom>
@@ -236,16 +239,19 @@ const Select = () => {
       </SidebarL>
 
       <MapContainer>
-        {/* <GoogleMap selectedPlace={selectedPlace}/> */}
-        api 낭비 방지용 주석
+        {/* <GoogleMap selectedPlace={selectedPlace} places={selectedPlaces} mode="select" /> aip낭비 방지용 주석*/}
       </MapContainer>
       <SidebarR $isOpen={isSidebarOpen}>
-        <ToggleButton onClick={toggleSidebar}>
-          {isSidebarOpen ? '▶' : '◀'}
-        </ToggleButton>
-        {isSidebarOpen && (
-          <PlaceDetail selectedPlace={selectedPlace} />
-        )}
+        <ToggleButtonWrapper>
+          <ToggleButton onClick={toggleSidebar}>
+            {isSidebarOpen ? '▶' : '◀'}
+          </ToggleButton>
+        </ToggleButtonWrapper>
+        <PlaceDetailWrapper>
+          {isSidebarOpen && (
+            <PlaceDetail selectedPlace={selectedPlace}/>
+          )}
+        </PlaceDetailWrapper>
       </SidebarR>
     </Container>
   );
@@ -255,6 +261,7 @@ export default Select
 
 const Container = styled.div`
     /* 화면 범위 */
+    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -361,6 +368,8 @@ const TagContent = styled.div`
   color: #12464C
 `
 
+
+
 const SidebarMain = styled.div`
   display: flex;
   flex-direction: column;
@@ -401,7 +410,6 @@ const Tab = styled.div`
   width: 70px;
   height: 56px;
 `
-
 const TabIcon = styled.div`
   color: ${({ $isActiveTab }) => ($isActiveTab ? '#2696A3' : '#12464C')};
 
@@ -419,8 +427,7 @@ const TabText = styled.div`
   font-weight: 400;
   font-size: 14px;
   line-height: 17px;
-`;
-
+`
 const ListScrollWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -453,6 +460,7 @@ const ListScrollWrapper = styled.div`
 
 
 `
+
 
 
 const SidebarBottom = styled.div`
@@ -497,7 +505,6 @@ const BtnPrev = styled.button`
 
 
 `
-
 const BtnNext = styled.button`
   /* 버튼 */
 
@@ -535,24 +542,32 @@ const BtnNext = styled.button`
 
   `
 
+
 const MapContainer = styled.div`
-  width: 100%;
-  height: 100%;
-
-  //background: #fff;
-
+  position: absolute; 
+  left: 504px;
+  width: calc(1920px - 504px);
+  height: 885px;
 `
 
+
 const SidebarR = styled.div`
+  position: absolute; 
+  top:0;
+  right :0 ;
+
   display: inline-flex;
-  height: 885px;
   justify-content: flex-end;
   align-items: center;
   flex-shrink: 0;
 
-  width: ${({ $isOpen }) => ($isOpen ? '528px' : '14')};
+  width: ${({ $isOpen }) => ($isOpen ? '528px' : '14px')};
+  height: 885px;
+  z-index: 100;
+  pointer-events: none;
 `
 const ToggleButton = styled.div`
+
   display: flex;
   height: 107px;
   padding: 0px 5px;
@@ -564,4 +579,12 @@ const ToggleButton = styled.div`
   background: #FFF;
   box-shadow: -4px 0px 4px 0px rgba(0, 0, 0, 0.25);
 `
-
+const ToggleButtonWrapper = styled.div`
+  z-index: 102;
+  pointer-events: auto;
+`
+const PlaceDetailWrapper = styled.div`
+  z-index: 101;
+  pointer-events: auto;
+  box-shadow: -4px 0px 4px 0px rgba(0, 0, 0, 0.25);
+`
