@@ -1,13 +1,13 @@
 import React from "react"
 import styled from "styled-components";
-import useScroll from '../../../hooks/useScroll';
+import useScroll from "../../hooks/useScroll";
 
-import AttractionIc from "../../../assets/icons/AttrantionIc";
-import LocationIcon from "../../../assets/icons/LocationIcon";
-import ClockIc from "../../../assets/icons/ClockIc";
-import DollarIc from "../../../assets/icons/DollarIc";
-import PhoneIc from "../../../assets/icons/PhoneIc";
-import WebIc from "../../../assets/icons/WebIc";
+import AttractionIc from "../../assets/icons/AttrantionIc";
+import LocationIcon from "../../assets/icons/LocationIcon";
+import ClockIc from "../../assets/icons/ClockIc";
+import DollarIc from "../../assets/icons/DollarIc";
+import PhoneIc from "../../assets/icons/PhoneIc";
+import WebIc from "../../assets/icons/WebIc";
 
 const PlaceDetail = ({ selectedPlace }) => {
     if (!selectedPlace) return null;
@@ -112,7 +112,6 @@ const Container = styled.div`
     align-items: center;
     gap: 32px;
     background: #FFF;
-    box-shadow: -4px 0px 4px 0px rgba(0, 0, 0, 0.25);
 
     overflow-y: scroll;
 
