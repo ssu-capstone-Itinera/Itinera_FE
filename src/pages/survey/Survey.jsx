@@ -28,7 +28,7 @@ const Survey = () => {
 
         <Question>
           <Title>Q. 동행 인원</Title>
-          <SubText>본인 포함 몇 명인지</SubText>
+          <SubText>본인 포함 몇 명인지 적어주세요</SubText>
           <InputGroup>
             <SmallInput type="number" defaultValue={1} min={1} />
             <div style={{ lineHeight: '42px' }}>명</div>
@@ -36,7 +36,7 @@ const Survey = () => {
         </Question>
 
         <Question>
-          <Title>Q. 여행지 - DAY1</Title>
+          <Title>Q. 여행지 </Title>
           <Input type="text" defaultValue="용산" />
         </Question>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -29,7 +29,7 @@ const Survey3 = () => {
         <Progress />
         <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '16px' }}>3/3</div>
         <Title>Q. 식당 유형 선택</Title>
-        <SubText>사용자가 선호하는 식당 유형 선택</SubText>
+        <SubText> 선호하시는 식당의 유형을 선택해주세요</SubText>
 
         {Object.entries(rescategories).map(([rescategories, tags]) => (
           <Section key={rescategories}>
@@ -50,7 +50,7 @@ const Survey3 = () => {
         ))}
 
         <Title>Q. 카페 유형 선택</Title>
-        <SubText>사용자가 선호하는 카페 유형 선택</SubText>
+        <SubText> 선호하시는 카페의 유형을 선택해주세요</SubText>
         {Object.entries(cafescategories).map(([cafescategories, tags]) => (
           <Section key={cafescategories}>
             <SectionTitle>{cafescategories}</SectionTitle>

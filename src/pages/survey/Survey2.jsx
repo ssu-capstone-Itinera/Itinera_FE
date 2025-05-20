@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -27,7 +27,7 @@ const Survey2 = () => {
         <Progress />
         <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '16px' }}>2/3</div>
         <Title>Q. 관광 명소 유형 선택</Title>
-        <SubText>사용자가 선호하는 관광명소의 유형 선택</SubText>
+        <SubText>선호하시는 관광지의 유형을 선택해주세요</SubText>
 
         {Object.entries(categories).map(([category, tags]) => (
           <Section key={category}>
