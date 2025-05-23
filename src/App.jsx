@@ -11,6 +11,7 @@ import Order from './pages/plan/order/Order';
 import Survey from './pages/survey/Survey';
 import Survey2 from './pages/survey/Survey2';
 import Survey3 from './pages/survey/Survey3';
+import TourRoute from './pages/plan/tourRoute/TourRoute';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/" element={<MainLayout_f />}>
           <Route path="/plan/select" element={<Select />} />
           <Route path="/plan/order" element={<Order />} />
+          <Route path="/plan/route" element={<TourRoute />} />
           <Route path="/survey/1" element={<Survey />} />
           <Route path="/survey/2" element={<Survey2 />} />
           <Route path="/survey/3" element={<Survey3 />} />

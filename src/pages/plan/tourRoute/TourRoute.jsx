@@ -1,22 +1,47 @@
 import styled from "styled-components";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import useScroll from '../../../hooks/useScroll';
 
 import CafeIc from "../../../assets/icons/CafeIc";
 import RestaurantIc from '../../../assets/icons/RestaurantIc';
 import AttractionIc from '../../../assets/icons/AttrantionIc';
-import DragIc from "../../../assets/icons/DragIc";
 
-import PlaceDetail from "../PlaceDetail";
+import AddLocaIc from '../../../assets/icons/AddLocaIc';
+import CarIc from "../../../assets/icons/CarIc";
+import BusIc from "../../../assets/icons/BusIc";
+import WalkIc from "../../../assets/icons/WalkIc";
 
-import GoogleMap from "../GoogleMap";
+import RouteDetail from "./RouteDetail";
+
+import GoogleRouteMap from "../GoogleRouteMap";
 
 const TagData = [
   { id: 0, name: "태그1" },
   { id: 1, name: "태그2" },
   { id: 2, name: "태그3" },
   { id: 3, name: "태그4" },
+];
+
+const TabData = [
+  {
+    id: 0, name: "대중교통", icon: <BusIc />, travelMode: "TRANSIT",
+    content: (props) => <GoogleRouteMap mode="route" travelMode="TRANSIT"
+      onRoutesExtracted={(data) => setRoutes(data)}
+      {...props} />
+  },
+  {
+    id: 1, name: "자가용", icon: <CarIc />, travelMode: "DRIVING",
+    content: "DRIVING" //(props) => <GoogleRouteMap travelMode="DRIVING" {...props} />
+  },
+  {
+    id: 2, name: "도보", icon: <WalkIc />, travelMode: "WALKING",
+    content: "WALKING"//(props) => <GoogleRouteMap travelMode="WALKING" {...props} />
+  },
+  {
+    id: 3, name: "자전거", icon: <AddLocaIc />, travelMode: "BICYCLING",
+    content: "BICYCLING"//(props) => <GoogleRouteMap places={sampleData} mode="route" travelMode="BICYCLING" {...props} />
+  },
 ];
 
 const sampleData = [
@@ -143,9 +168,14 @@ const sampleData = [
 ];
 
 
-const Order = () => {
-  const [selectedPlace, setSelectedPlace] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const TourRoute = () => {
+  const [activeTab, setActiveTab] = useState(0);
+  const activeTabData = TabData.find((tab) => tab.id === activeTab);
+  const tabClickHandler = (id) => {
+    setActiveTab(id);
+  }
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const {
     scrollRef,
@@ -155,60 +185,32 @@ const Order = () => {
     handleMouseMove,
   } = useScroll();
 
-  const handleClick = (item) => {
-    if (selectedPlace?.place?.id === item.place.id) {
-      // 이미 선택된 장소를 다시 누르면 닫기
-      setSelectedPlace(null);
-      setIsSidebarOpen(false);
-    } else {
-      // 새 장소를 선택하면 열기
-      setSelectedPlace(item);
-      setIsSidebarOpen(true);
-    }
-  }
-
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => {
       const willBeClosed = prev === true; // 지금 열려있으면 닫히는 상태로 바뀜
       if (willBeClosed) {
-        setSelectedPlace(null); // 닫힐 때만 선택 상태 초기화
         return false;
       } else {
-        if (!selectedPlace) return false;
         return true;
       }
     });
   };
 
-  const dragStartFromHandle = useRef(false);
-  const [places, setPlaces] = useState(sampleData);
-  const [draggedIndex, setDraggedIndex] = useState(null);
-
-  // 아이템 이동 핸들러
-  const handleDragStart = (e, index) => {
-    if (!dragStartFromHandle.current) {
-      e.preventDefault(); // 아이콘이 아닌 경우 드래그 막기
-      return;
-    }
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-    setSelectedPlace(null);
+  const [routes, setRoutes] = useState([]);
+  // 동적 할당
+  // const handleRoutesExtracted = (routesFromMap, day) => {
+  //   const withDay = routesFromMap.map((r) => ({ ...r, day }));
+  //   setRoutes((prev) => [...prev, ...withDay]);
+  // };
+  const handleRoutesExtracted = (routesFromMap) => {
+    const grouped = {
+      day: 'Day1',
+      routes: routesFromMap.map(route => ({
+        ...route,
+      }))
+    };
+    setRoutes(prev => [...prev, grouped]);
   };
-
-  const handleDragEnter = (e, targetIndex) => {
-    if (draggedIndex === null || draggedIndex === targetIndex) return;
-    const newList = [...places];
-    const draggedItem = newList.splice(draggedIndex, 1)[0];
-    newList.splice(targetIndex, 0, draggedItem);
-    setDraggedIndex(targetIndex);
-    setPlaces(newList);
-  };
-
-  const handleDragEnd = () => {
-    dragStartFromHandle.current = false;
-    setDraggedIndex(null);
-  };
-
 
   return (
     <Container>
@@ -233,7 +235,20 @@ const Order = () => {
 
         <SidebarMain>
           <TabContainer>
-            여행지 방문 순서 조정
+            {TabData.map((tab) => (
+              <Tab key={tab.id}
+                $isActiveTab={tab.id === activeTab}
+                onClick={() => tabClickHandler(tab.id)}>
+                <TabIcon
+                  $isActiveTab={activeTab == tab.id}>
+                  {tab.icon}
+                </TabIcon>
+                <TabText
+                  $isActiveTab={activeTab == tab.id}>
+                  {tab.name}
+                </TabText>
+              </Tab>
+            ))}
           </TabContainer>
           <ListScrollWrapper
             ref={scrollRef}
@@ -242,16 +257,10 @@ const Order = () => {
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
           >
-            {places.map((item, index) => (
-              <List key={item.place?.id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragEnter={(e) => handleDragEnter(e, index)}
-                onDragEnd={handleDragEnd}>
+            {sampleData.map((item) => (
+              <List key={item.place?.id}>
                 <ListContent>
-                  <Location
-                    $isActiveItem={selectedPlace?.place?.id === item.place.id}
-                    onClick={() => handleClick(item)}>
+                  <Location>
                     <LocationText>
                       {item.place?.category === "TOURATTRACTION"
                         ? <AttractionIc />
@@ -260,13 +269,6 @@ const Order = () => {
                           : <CafeIc />)}
                       <Name>{item.place?.name}</Name>
                     </LocationText>
-                    <DragHandle
-                      onMouseDown={() => {
-                        dragStartFromHandle.current = true;
-                      }}
-                    >
-                      <DragIc />
-                    </DragHandle>
                   </Location>
                 </ListContent>
               </List>
@@ -285,7 +287,13 @@ const Order = () => {
       </SidebarL>
 
       <MapContainer>
-        <GoogleMap selectedPlace={selectedPlace} places={places} mode="order" /> api 낭비 방지용 주석
+        {typeof activeTabData.content === 'function'
+          ? activeTabData.content({
+            places: sampleData,
+            onRoutesExtracted: (routes) => handleRoutesExtracted(routes),
+          })
+          : activeTabData.content}
+
       </MapContainer>
       <SidebarR $isOpen={isSidebarOpen}>
         <ToggleButtonWrapper>
@@ -295,7 +303,7 @@ const Order = () => {
         </ToggleButtonWrapper>
         <PlaceDetailWrapper>
           {isSidebarOpen && (
-            <PlaceDetail selectedPlace={selectedPlace} />
+            <RouteDetail routes={routes} />
           )}
         </PlaceDetailWrapper>
       </SidebarR>
@@ -303,7 +311,7 @@ const Order = () => {
   );
 }
 
-export default Order
+export default TourRoute
 
 const Container = styled.div`
     /* 화면 범위 */
@@ -450,6 +458,41 @@ const TabContainer = styled.div`
     font-weight: 700;
     line-height: normal;
 `
+const Tab = styled.div`
+  cursor: pointer;
+  /* Frame 94 */
+
+  /* Auto layout */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+
+  gap: 6px;
+
+  width: 70px;
+  height: 56px;
+`
+const TabIcon = styled.div`
+  color: ${({ $isActiveTab }) => ($isActiveTab ? '#2696A3' : '#12464C')};
+
+`
+const TabText = styled.div`
+  display: flex;
+  text-align: center; 
+  padding: 1px 4px;
+
+  border-radius: 8px;
+
+  background: ${({ $isActiveTab }) => ($isActiveTab ? '#2696A3' : 'transparent')};
+  color: ${({ $isActiveTab }) => ($isActiveTab ? '#ffffff' : '#12464C')};
+
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+`
+
 const ListScrollWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -464,9 +507,6 @@ const ListScrollWrapper = styled.div`
 
   -webkit-overflow-scrolling: touch;
 
-  &.active {
-    cursor: grabbing;
-  }
 
   &::-webkit-scrollbar {
     width: 16px;
@@ -480,13 +520,7 @@ const ListScrollWrapper = styled.div`
     background: #ffffff;  /*스크롤바 뒷 배경 색상*/
 }
 `
-const DragHandle = styled.div`
-  cursor: grab;
-  padding-left: 8px;
-  &:active {
-    cursor: grabbing;
-  }
-`
+
 const List = styled.div`
   /* 리스트*/
 
@@ -512,7 +546,6 @@ const ListContent = styled.div`
   padding: 8px 16px;
 `
 const Location = styled.div`
-cursor: pointer;
   /* 선택 시 범위 */
 
   /* Auto layout */
@@ -527,16 +560,6 @@ cursor: pointer;
   width: 440px;
   height: 48px;
   border-radius: 16px;
-  
-  background: ${({ $isActiveItem }) => ($isActiveItem ? '#EBFAFB' : 'transparent')};
-
-  ${({ $isActiveItem }) => !$isActiveItem && `
-    &:hover {
-      background: #FEFBEA;
-    }
-  `}
-
-  ${({ $isActiveItem }) => $isActiveItem && `background: #F0F8F9;`}
 
 `
 const LocationText = styled.div`
