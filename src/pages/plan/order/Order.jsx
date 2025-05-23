@@ -285,7 +285,7 @@ const Order = () => {
       </SidebarL>
 
       <MapContainer>
-        {/* <GoogleMap selectedPlace={selectedPlace} places={places} mode="order" /> api 낭비 방지용 주석 */}
+        <GoogleMap selectedPlace={selectedPlace} places={places} mode="order" /> api 낭비 방지용 주석
       </MapContainer>
       <SidebarR $isOpen={isSidebarOpen}>
         <ToggleButtonWrapper>
