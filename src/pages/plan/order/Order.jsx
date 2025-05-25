@@ -1,6 +1,8 @@
 import styled from "styled-components";
 
-import React, { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+
 import useScroll from '../../../hooks/useScroll';
 
 import CafeIc from "../../../assets/icons/CafeIc";
@@ -19,131 +21,76 @@ const TagData = [
   { id: 3, name: "태그4" },
 ];
 
-const sampleData = [
+const spSelected = [
   {
-    "place": {
-      "createdDate": null,
-      "updatedDate": null,
-      "id": 1,
-      "category": "TOURATTRACTION",
-      "placeGoogleId": "ChIJN2x0fu2ifDUR51BupseGYmE",
-      "name": "국립중앙박물관",
-      "address": "대한민국 서울특별시 용산구 서빙고로 137",
-      "lat": 37.523,
-      "lng": 126.980,
-      "rating": 2.7,
-      "phoneNumber": "02-2077-9000",
-      "webSite": "https://www.museum.go.kr/",
-      "openingHours": [
-        "월요일: 오전 10:00 ~ 오후 6:00",
-        "화요일: 오전 10:00 ~ 오후 6:00",
-        "수요일: 오전 10:00 ~ 오후 9:00",
-        "목요일: 오전 10:00 ~ 오후 6:00",
-        "금요일: 오전 10:00 ~ 오후 6:00",
-        "토요일: 오전 10:00 ~ 오후 9:00",
-        "일요일: 오전 10:00 ~ 오후 6:00"
-      ],
-      "priceLevel": "가격정보 없음",
-      "description": null,
-      "itineraryItems": null
-    },
-    "placeDocument": {
-      "id": null,
-      "placeType": null,
-      "placeId": "ChIJN2x0fu2ifDUR51BupseGYmE",
-      "details": null,
-      "attractionType": null,
-      "apiTags": [
-        "박물관"
-      ],
-      "subjectiveTags": [
-        "전통적인"
-      ],
-      "searchFilters": null
-    }
-  },
-  {
-    "place": {
-      "createdDate": null,
-      "updatedDate": null,
-      "id": 2,
-      "category": "RESTAURANT",
-      "placeGoogleId": "ChIJCwhNvwGjfDUR_Sq2kpWoUT4",
-      "name": "경복궁 식당",
-      "address": "대한민국 서울특별시 용산구 서빙고로 137",
-      "lat": 37.575,
-      "lng": 126.976,
-      "rating": 4.7,
-      "phoneNumber": "02-725-6561",
-      "webSite": "https://www.minarirest.com/",
-      "openingHours": [
-        "월요일: 오전 10:00 ~ 오후 10:00",
-        "화요일: 오전 10:00 ~ 오후 10:00",
-        "수요일: 오전 10:00 ~ 오후 10:00",
-        "목요일: 오전 10:00 ~ 오후 10:00",
-        "금요일: 오전 10:00 ~ 오후 10:00",
-        "토요일: 오전 10:00 ~ 오후 10:00",
-        "일요일: 오전 10:00 ~ 오후 10:00"
-      ],
-      "priceLevel": "가격정보 없음",
-      "description": null,
-      "itineraryItems": null
-    },
-    "placeDocument": {
-      "id": null,
-      "placeType": null,
-      "placeId": "ChIJN2x0fu2ifDUR51BupseGYmE",
-      "details": null,
-      "attractionType": null,
-      "restaurantType": [
-        "한식"
-      ],
-      "searchFilters": null
-    }
-  },
-  {
-    "place": {
-      "createdDate": null,
-      "updatedDate": null,
-      "id": 3,
-      "category": "RESTAURANT",
-      "placeGoogleId": "ChIJCwhNvwGjfDUR_Sq2kpWoUT4",
-      "name": "서울숲",
-      "address": "대한민국 서울특별시 용산구 서빙고로 137",
-      "lat": 37.544,
-      "lng": 127.038,
-      "rating": 4.7,
-      "phoneNumber": "02-725-6561",
-      "webSite": "https://www.minarirest.com/",
-      "openingHours": [
-        "월요일: 오전 10:00 ~ 오후 10:00",
-        "화요일: 오전 10:00 ~ 오후 10:00",
-        "수요일: 오전 10:00 ~ 오후 10:00",
-        "목요일: 오전 10:00 ~ 오후 10:00",
-        "금요일: 오전 10:00 ~ 오후 10:00",
-        "토요일: 오전 10:00 ~ 오후 10:00",
-        "일요일: 오전 10:00 ~ 오후 10:00"
-      ],
-      "priceLevel": "가격정보 없음",
-      "description": null,
-      "itineraryItems": null
-    },
-    "placeDocument": {
-      "id": null,
-      "placeType": null,
-      "placeId": "ChIJN2x0fu2ifDUR51BupseGYmE",
-      "details": null,
-      "attractionType": null,
-      "restaurantType": [
-        "한식"
-      ],
-      "searchFilters": null
-    }
+    "id": 0,
+    "category": "TOURATTRACTION",
+    "placeGoogleId": "ChIJN2x0fu2ifDUR51BupseGYmE",
+    "name": "국립중앙박물관",
+    "address": "대한민국 서울특별시 용산구 서빙고로 137",
+    "lat": 37.523,
+    "lng": 126.980,
+    "location": "string",
+    "rating": 4.7,
+    "phoneNumber": "02-2077-9000",
+    "webSite": "https://www.museum.go.kr/",
+    "openingHours": [
+      "월요일: 오전 10:00 ~ 오후 6:00",
+      "화요일: 오전 10:00 ~ 오후 6:00",
+      "수요일: 오전 10:00 ~ 오후 9:00",
+      "목요일: 오전 10:00 ~ 오후 6:00",
+      "금요일: 오전 10:00 ~ 오후 6:00",
+      "토요일: 오전 10:00 ~ 오후 9:00",
+      "일요일: 오전 10:00 ~ 오후 6:00"
+    ],
+    "priceLevel": "가격정보 없음",
+    "description": null,
+    "reviews": [
+      "string"
+    ],
+    "cafeTags": [
+      "ALLOWS_DOGS"
+    ],
+    "restaurantType": "NONE",
+    "tourattractionTags": [
+      "자연"
+    ],
+    "subjectiveTags": [
+      "한적한"
+    ]
   }
+
 ];
 
-
 const Order = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { totalDays, currentDay } = location.state;
+
+  const getInitialPlaces = () => {
+    const saved = localStorage.getItem('orderedPlaces');
+    if (saved && !location.state?.selected) {
+      return JSON.parse(saved);
+    } else if (location.state?.selected) {
+      return location.state.selected;
+    }
+    return [];
+  };
+  const [places, setPlaces] = useState(getInitialPlaces);
+
+  useEffect(() => {
+    localStorage.setItem('orderedPlaces', JSON.stringify(places));
+  }, [places]);
+
+  const handleNext = () => {
+    if (places == null) return;
+    navigate('/plan/route',{
+      state: {
+        totalDays: totalDays,
+        currentDay: currentDay,
+      }});
+  };
+
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -156,7 +103,7 @@ const Order = () => {
   } = useScroll();
 
   const handleClick = (item) => {
-    if (selectedPlace?.place?.id === item.place.id) {
+    if (selectedPlace?.placeId === item.placeId) {
       // 이미 선택된 장소를 다시 누르면 닫기
       setSelectedPlace(null);
       setIsSidebarOpen(false);
@@ -166,6 +113,27 @@ const Order = () => {
       setIsSidebarOpen(true);
     }
   }
+  //get /api/vi/place/{googleId}
+  const [placeDetail, setPlaceDetail] = useState(null); // 👈 상세 정보
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedPlace) return;
+
+    const fetchDetailData = async () => {
+      setIsDetailLoading(true);
+      try {
+        const detail = await fetchDetail(selectedPlace.googleId); // 또는 placeId
+        setPlaceDetail(detail);
+      } catch (err) {
+        console.error('상세 정보 로딩 실패:', err);
+      } finally {
+        setIsDetailLoading(false);
+      }
+    };
+
+    fetchDetailData();
+  }, [selectedPlace]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => {
@@ -181,7 +149,6 @@ const Order = () => {
   };
 
   const dragStartFromHandle = useRef(false);
-  const [places, setPlaces] = useState(sampleData);
   const [draggedIndex, setDraggedIndex] = useState(null);
 
   // 아이템 이동 핸들러
@@ -216,7 +183,7 @@ const Order = () => {
         <SidebarTop>
           <Information>
             <Date>
-              Day1 {/* 시간 정보 받아와서 출력할 예정  */}
+              Day{currentDay} {/* 시간 정보 받아와서 출력할 예정  */}
             </Date>
             <Area>
               서울시 용산구 {/* 구역 정보 받아와서 출력할 예정  */}
@@ -243,22 +210,22 @@ const Order = () => {
             onMouseMove={handleMouseMove}
           >
             {places.map((item, index) => (
-              <List key={item.place?.id}
+              <List key={item.placeId}
                 draggable
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragEnter={(e) => handleDragEnter(e, index)}
                 onDragEnd={handleDragEnd}>
                 <ListContent>
                   <Location
-                    $isActiveItem={selectedPlace?.place?.id === item.place.id}
+                    $isActiveItem={selectedPlace?.placeId === item.placeId}
                     onClick={() => handleClick(item)}>
                     <LocationText>
-                      {item.place?.category === "TOURATTRACTION"
+                      {item.category === "TOURATTRACTION"
                         ? <AttractionIc />
-                        : (item.place?.category === "RESTAURANT"
+                        : (item.category === "RESTAURANT"
                           ? <RestaurantIc />
                           : <CafeIc />)}
-                      <Name>{item.place?.name}</Name>
+                      <Name>{item.name}</Name>
                     </LocationText>
                     <DragHandle
                       onMouseDown={() => {
@@ -275,11 +242,16 @@ const Order = () => {
         </SidebarMain>
 
         <SidebarBottom>
-          <BtnPrev>
+          <BtnPrev onClick={() => navigate('/plan/select',{
+            state: {
+              currentDay: currentDay,
+              totalDays,
+            },
+          })}>
             이전
           </BtnPrev>
-          <BtnNext>
-            next
+          <BtnNext onClick={handleNext}>
+            다음
           </BtnNext>
         </SidebarBottom>
       </SidebarL>
@@ -295,7 +267,9 @@ const Order = () => {
         </ToggleButtonWrapper>
         <PlaceDetailWrapper>
           {isSidebarOpen && (
-            <PlaceDetail selectedPlace={selectedPlace} />
+            <PlaceDetail
+              detail={spSelected}
+              loading={isDetailLoading} />
           )}
         </PlaceDetailWrapper>
       </SidebarR>

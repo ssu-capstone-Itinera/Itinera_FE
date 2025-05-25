@@ -5,11 +5,8 @@ import WalkIc from "../../../assets/icons/WalkIc";
 import BusIc from "../../../assets/icons/BusIc";
 import CarIc from "../../../assets/icons/CarIc";
 
-import ClockIc from "../../../assets/icons/ClockIc";
-import LocationIc from "../../../assets/icons/LocationIcon";
-
 const RouteDetail = ({ routes: groupedRoutes }) => {
-    console.log(groupedRoutes)
+    //console.log(groupedRoutes)
     if (!groupedRoutes) return null;
 
     const {
@@ -27,12 +24,12 @@ const RouteDetail = ({ routes: groupedRoutes }) => {
             onMouseLeave={handleMouseLeave}
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}>
-            <Title> 상세 경로 </Title>
-
             {groupedRoutes.map((group) => (
                 <RouteList key={group.day}>
-                    <Date>{group.day}</Date>
-
+                    <Title>
+                        <Name> 상세 경로 </Name>
+                        <Date>{group.day}</Date>
+                    </Title>
                     {group.routes.map((route) => (
                         <RouteItem key={route.id}>
                             <RouteTitle>
@@ -118,33 +115,35 @@ const Container = styled.div`
 `
 
 const Title = styled.div`
-    color: var(--Primary-Darker, #12464C);
+    display: flex;
+    height: 48px;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    align-self: stretch;
+`
 
+const Name = styled.div`
+    color: var(--Primary-Darker, #12464C);
     /* Heading/32px */
     font-size: 32px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
 `
-
 const Date = styled.div`
     display: flex;
-    height: 32px;
-    padding: 0px 24px;
-    //justify-content: center;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1 0 0;
     align-self: stretch;
-    border-radius: 8px;
-    background: var(--Primary-Light, #EBFAFB);
-
-    color: var(--Primary-Darker, #12464C);
-
-    /* Body/20px */
-    font-size: 20px;
+    color: var(--gray-700, #616161);
+    /* Body/16px */
+    font-family: Pretendard;
+    font-size: 16px;
     font-style: normal;
-    font-weight: 700;
-    line-height: 32px; /* 160% */
+    font-weight: 400;
+    line-height: normal;
 `
 const RouteList = styled.div`
     display: flex;
@@ -158,7 +157,7 @@ const RouteItem = styled.div`
     display: flex;
     flex-direction: column;
     align-self: stretch;
-    padding: 0px 24px;
+    //padding: 0px 24px;
     gap: 8px;
 
     //border-bottom: 1px solid #EEEEEE;
@@ -167,7 +166,7 @@ const RouteTitle = styled.div`
     display: flex;
     height: 32px;
     align-items: center;
-    gap: 24px;
+    gap: 8px;
     align-self: stretch;
     color: var(--Primary-Darker, #12464C);
 `

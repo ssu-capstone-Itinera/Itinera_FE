@@ -1,6 +1,6 @@
-import React from "react"
 import styled from "styled-components";
 import useScroll from "../../hooks/useScroll";
+import { useEffect } from 'react';
 
 import AttractionIc from "../../assets/icons/AttrantionIc";
 import LocationIcon from "../../assets/icons/LocationIcon";
@@ -9,8 +9,14 @@ import DollarIc from "../../assets/icons/DollarIc";
 import PhoneIc from "../../assets/icons/PhoneIc";
 import WebIc from "../../assets/icons/WebIc";
 
-const PlaceDetail = ({ selectedPlace }) => {
-    if (!selectedPlace) return null;
+const PlaceDetail = ({ detail, loading }) => {
+    if (loading) return <Container>로딩 중...</Container>;
+    if (!detail) return <Container>데이터 없음</Container>;
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     const {
         scrollRef,
         handleMouseDown,
@@ -19,12 +25,23 @@ const PlaceDetail = ({ selectedPlace }) => {
         handleMouseMove,
     } = useScroll();
 
-    const { place } = selectedPlace;
+    const place = detail[0];
+    //console.log(place)
+    const openingHoursList = Array.isArray(place.openingHours)
+        ? place.openingHours.map((entry, i) => {
+            const [day, time] = entry.split(": ");
+            return { id: i, day, time };
+        })
+        : []; // 👈 undefined나 string일 경우 빈 배열 처리
+    //console.log(openingHoursList)
 
-    const openingHoursList = place.openingHours.map((entry, i) => {
-        const [day, time] = entry.split(": ");
-        return { id: i, day, time };
-    });
+    const tagList = [
+        ...(Array.isArray(place.cafeTags) ? place.cafeTags.filter(tag => tag !== "NONE") : []),
+        ...(Array.isArray(place.tourattractionTags) ? place.tourattractionTags.filter(tag => tag !== "NONE") : []),
+        ...(Array.isArray(place.subjectiveTags) ? place.subjectiveTags.filter(tag => tag !== "NONE") : []),
+        ...(Array.isArray(place.restaurantType) ? place.restaurantType.filter(tag => tag !== "NONE") : []),
+    ];
+
 
     return (
         <Container
@@ -33,36 +50,48 @@ const PlaceDetail = ({ selectedPlace }) => {
             onMouseLeave={handleMouseLeave}
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}>
-            <Title>
-                <Name> {place.name} </Name>
-                <Category> {place.category == "TOURATTRACTION" ? "관광명소"
-                    : (place.category == "RESTAURANT" ? "식당"
-                        : "카페")} </Category>
-            </Title>
-            <TagWrapper>장소에 붙은 태그 정보</TagWrapper>
-            <RatingWrapper>
-                <RatingText>{place.rating}</RatingText>
-                <StarsWrapper>
-                    {[...Array(5)].map((_, i) => {
-                        const diff = place.rating - i;
-                        let fill = 0;
-                        if (diff >= 1) fill = 100;
-                        else if (diff > 0) fill = diff * 100;
-                        return (
-                            <SingleStar key={i}>
-                                <AttractionIc style={{ color: "#BDBDBD" }} />
-                                <FillMask style={{ width: `${fill}%` }}>
-                                    <AttractionIc style={{ color: "#2696A3" }} />
-                                </FillMask>
-                            </SingleStar>
-                        );
-                    })}
-                </StarsWrapper>
-            </RatingWrapper>
-            <ImageWrapper>
+            <Wrapper>
+                <Title>
+                    <Name> {place.name} </Name>
+                    <Category> {place.category == "TOURATTRACTION" ? "관광명소"
+                        : (place.category == "RESTAURANT" ? "식당"
+                            : "카페")} </Category>
+                </Title>
+                <TagWrapper>
+                    {tagList.length > 0 ? (
+                        tagList.map((tag, index) => (
+                            <TagList key={index}>
+                                {tag}
+                            </TagList>
+                        ))
+                    ) : (
+                        <HourText>태그 정보 없음</HourText>
+                    )}
+                </TagWrapper>
+                <RatingWrapper>
+                    <RatingText>{place.rating}</RatingText>
+                    <StarsWrapper>
+                        {[...Array(5)].map((_, i) => {
+                            const diff = place.rating - i;
+                            let fill = 0;
+                            if (diff >= 1) fill = 100;
+                            else if (diff > 0) fill = diff * 100;
+                            return (
+                                <SingleStar key={i}>
+                                    <AttractionIc style={{ color: "#BDBDBD" }} />
+                                    <FillMask style={{ width: `${fill}%` }}>
+                                        <AttractionIc style={{ color: "#2696A3" }} />
+                                    </FillMask>
+                                </SingleStar>
+                            );
+                        })}
+                    </StarsWrapper>
+                </RatingWrapper>
+            </Wrapper>
+            <Wrapper>
                 <ImageInfo src="/images/sample.png" alt="장소 이미지" />
-            </ImageWrapper>
-            <DetailWrapper>
+            </Wrapper>
+            <Wrapper>
                 <DetailListItem>
                     <LocationIcon />
                     <DetailText> {place.address}</DetailText>
@@ -72,16 +101,16 @@ const PlaceDetail = ({ selectedPlace }) => {
                         <ClockIc />
                         <DetailText> 운영시간</DetailText>
                     </DetailListItem>
-                    {openingHoursList.map((item) => (
-                        <OpeningHourList key={item.id}>
-                            <HourText>
-                                {item.day}
-                            </HourText>
-                            <HourText>
-                                {item.time}
-                            </HourText>
-                        </OpeningHourList>
-                    ))}
+                    {openingHoursList.length > 0 ? (
+                        openingHoursList.map((item) => (
+                            <OpeningHourList key={item.id}>
+                                <HourText>{item.day}</HourText>
+                                <HourText>{item.time}</HourText>
+                            </OpeningHourList>
+                        ))
+                    ) : (
+                        <HourText>운영 시간 정보 없음</HourText>
+                    )}
                 </OpeningHourDetail>
                 <DetailListItem>
                     <DollarIc />
@@ -93,10 +122,26 @@ const PlaceDetail = ({ selectedPlace }) => {
                 </DetailListItem>
                 <DetailListItem>
                     <WebIc />
-                    <DetailText> {place.webSite}</DetailText>
+                    <DetailText> 
+                        <a href={place.webSite} target="_blank" rel="noopener noreferrr" >
+                            {place.webSite}
+                        </a>
+                    </DetailText>
                 </DetailListItem>
-            </DetailWrapper>
-            <div>리뷰</div>
+            </Wrapper>
+            <ReviewWrapper>
+                <RatingText>리뷰</RatingText>
+                {Array.isArray(place.reviews) && place.reviews.length > 0 ? (
+                    place.reviews.map((review, index) => (
+                        <ReviewList key={index}>
+                            <DetailText>{review}</DetailText>
+                        </ReviewList>
+                    ))
+                ) : (
+                    <DetailText>리뷰가 없습니다</DetailText>
+                )}
+            </ReviewWrapper>
+
         </Container>
     );
 }
@@ -108,12 +153,10 @@ const Container = styled.div`
     height: 885px;
     padding: 24px 32px;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     gap: 32px;
     background: #FFF;
 
-    overflow-y: scroll;
+    overflow-y: auto;
 
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
@@ -128,7 +171,14 @@ const Container = styled.div`
         display: none;
     }
 `
-
+const Wrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    flex: 1 0 0;
+    align-self: stretch;
+`
 const Title = styled.div`
     display: flex;
     height: 48px;
@@ -204,31 +254,11 @@ const FillMask = styled.div`
   pointer-events: none;
 `;
 
-const ImageWrapper = styled.div`
-    display: flex;
-    height: 200px;
-    padding: 16px 0px;
-    align-items: flex-start;
-    gap: 10px;
-    align-self: stretch;
-`;
-
 const ImageInfo = styled.img`
     border-radius: 8px;
     border: 1px;
 `;
 
-const DetailWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 8px 0px;
-    gap: 16px;
-    align-self: stretch;
-
-    border-bottom: 1px solid var(--gray-300, #E0E0E0);
-`
 const DetailListItem = styled.div`
     display: flex;
     align-items: center;
@@ -247,7 +277,6 @@ const OpeningHourDetail = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 8px 0px;
     align-self: stretch;
 `
 const OpeningHourList = styled.div`
@@ -262,5 +291,40 @@ const HourText = styled.div`
     font-size: 20px;
     font-style: normal;
     font-weight: 400;
-    line-height: 32px; /* 160% */
+    line-height: 32px; /* 160% */   
+`
+const TagList = styled.div`
+    display: flex;
+    padding: 4px 8px;
+    align-items: center;
+    gap: 10px;
+
+    border-radius: 8px;
+    background: var(--Primary-Light, #EBFAFB);
+
+    color: var(--Primary-Darker, #12464C);
+
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+`
+const ReviewWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    //align-items: flex-start;
+    gap: 16px;
+    align-self: stretch;
+`
+const ReviewList = styled.div`
+    display: flex;
+    padding: 8px 0px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    align-self: stretch;
+
+    
+  border-bottom: 1px solid #EEEEEE;
 `

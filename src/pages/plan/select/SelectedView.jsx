@@ -4,40 +4,40 @@ import styled from "styled-components";
 import DotIcon from '../../../assets/icons/DotIcon';
 import Marker from "../../../assets/icons/Marker";
 
-const SelectedView = ({ data, checkedMap, toggleCheckbox, selectedPlace, onSelectPlace, onSidebarOpen}) => {
-  const selected = data.filter((item) => checkedMap[item.place.id]);
+const SelectedView = ({ data, checkedMap, toggleCheckbox, selectedPlace, setSelectedPlace, setIsSidebarOpen}) => {
+  const selected = data.filter((item) => checkedMap[item.placeGoogleId]);
 
   const handleClick = (item) => {
-    if (selectedPlace?.place?.id === item.place.id) {
+    if (selectedPlace?.placeGoogleId === item.placeGoogleId) {
       // 이미 선택된 장소를 다시 누르면 닫기
-      onSelectPlace(null);
-      onSidebarOpen(false);
+      setSelectedPlace(null);
+      setIsSidebarOpen(false);
     } else {
       // 새 장소를 선택하면 열기
-      onSelectPlace(item);
-      onSidebarOpen(true);
+      setSelectedPlace(item);
+      setIsSidebarOpen(true);
     }
   }
 
-  return selected.map((item) => (
-    <List key={item.place.id}>
+  return data.map((item) => (
+    <List key={item.placeGoogleId}>
       <ListContent>
         <Location
-          $isActiveItem={selectedPlace?.place?.id === item.place.id}
+          $isActiveItem={selectedPlace?.placeGoogleId === item.placeGoogleId}
           onClick={() => handleClick(item)}>
           <LocationText>
-            {selectedPlace?.place?.id === item.place.id
+            {selectedPlace?.placeGoogleId === item.placeGoogleId
               ? <Marker />
               : <DotIcon />}
-            <Name>{item.place?.name}</Name>
+            <Name>{item.name}</Name>
           </LocationText>
 
           <CheckboxWrapper>
             <HiddenCheckbox
-              checked={checkedMap[item.place.id] || false}
-              onChange={() => toggleCheckbox(item.place.id)}
+              checked={checkedMap[item.placeGoogleId] || false}
+              onChange={() => toggleCheckbox(item.placeGoogleId)}
             />
-            <StyledCheckbox $checked={checkedMap[item.place.id] || false} />
+            <StyledCheckbox $checked={checkedMap[item.placeGoogleId] || false} />
           </CheckboxWrapper>
         </Location>
 

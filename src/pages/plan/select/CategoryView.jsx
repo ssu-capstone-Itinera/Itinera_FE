@@ -1,54 +1,54 @@
 import styled from "styled-components";
 
-import React from 'react';
-
 import DotIcon from '../../../assets/icons/DotIcon';
 import Marker from "../../../assets/icons/Marker";
 
-const CategoryView = ({ category, data, checkedMap, toggleCheckbox, selectedPlace, onSelectPlace, onSidebarOpen }) => {
-  const filtered = data.filter((item) => item.place?.category === category);
+const CategoryView = ({ category, data, checkedMap, toggleCheckbox, selectedPlace, setSelectedPlace, setIsSidebarOpen }) => {
+
+  const filtered = data.filter((item) => item.category === category);
+ // console.log(filtered);
 
   const handleClick = (item) => {
-    if (selectedPlace?.place?.id === item.place.id) {
+    if (selectedPlace?.placeGoogleId === item.placeGoogleId) {
       // 이미 선택된 장소를 다시 누르면 닫기
-      onSelectPlace(null);
-      onSidebarOpen(false);
+      setSelectedPlace(null);
+      setIsSidebarOpen(false);
     } else {
       // 새 장소를 선택하면 열기
-      onSelectPlace(item);
-      onSidebarOpen(true);
+      setSelectedPlace(item);
+      setIsSidebarOpen(true);
     }
   }
 
-return filtered.map((item) => (
-  <List key={item.place?.id}>
-    <ListContent>
-      <Location
-        $isActiveItem={selectedPlace?.place?.id === item.place.id}
-        onClick={() => handleClick(item)}
-      >
-        <LocationText>
-          {selectedPlace?.place?.id === item.place.id
-            ? <Marker />
-            : <DotIcon />}
-          <Name>{item.place?.name}</Name>
-        </LocationText>
+  return filtered.map((item) => (
+    <List key={item.placeGoogleId}>
+      <ListContent>
+        <Location
+          $isActiveItem={selectedPlace?.placeGoogleId === item.placeGoogleId}
+          onClick={() => handleClick(item)}
+        >
+          <LocationText>
+            {selectedPlace?.placeGoogleId === item.placeGoogleId
+              ? <Marker />
+              : <DotIcon />}
+            <Name>{item.name}</Name>
+          </LocationText>
 
-        <CheckboxWrapper>
-          <HiddenCheckbox
-            checked={checkedMap[item.place.id] || false}
-            onClick={(e) => e.stopPropagation()}
-            onChange={() => toggleCheckbox(item.place.id)}
-          />
-          <StyledCheckbox
-            $checked={checkedMap[item.place.id] || false}
-            onClick={(e) => e.stopPropagation()}
-          />
-        </CheckboxWrapper>
-      </Location>
-    </ListContent>
-  </List>
-));
+          <CheckboxWrapper>
+            <HiddenCheckbox
+              checked={checkedMap[item.placeGoogleId] || false}
+              onClick={(e) => e.stopPropagation()}
+              onChange={() => toggleCheckbox(item.placeGoogleId)}
+            />
+            <StyledCheckbox
+              $checked={checkedMap[item.placeGoogleId] || false}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </CheckboxWrapper>
+        </Location>
+      </ListContent>
+    </List>
+  ));
 }
 export default CategoryView;
 

@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useScroll from '../../../hooks/useScroll';
 
 import CafeIc from "../../../assets/icons/CafeIc";
@@ -32,143 +33,33 @@ const TabData = [
   },
   {
     id: 1, name: "자가용", icon: <CarIc />, travelMode: "DRIVING",
-    content: "DRIVING" //(props) => <GoogleRouteMap travelMode="DRIVING" {...props} />
+    content: () => <div>DRIVING</div> //(props) => <GoogleRouteMap travelMode="DRIVING" {...props} />
   },
   {
     id: 2, name: "도보", icon: <WalkIc />, travelMode: "WALKING",
-    content: "WALKING"//(props) => <GoogleRouteMap travelMode="WALKING" {...props} />
+    content: () => <div>WALKING</div>//(props) => <GoogleRouteMap travelMode="WALKING" {...props} />
   },
   {
     id: 3, name: "자전거", icon: <AddLocaIc />, travelMode: "BICYCLING",
-    content: "BICYCLING"//(props) => <GoogleRouteMap places={sampleData} mode="route" travelMode="BICYCLING" {...props} />
+    content: () => <div>BICYCLING</div>//(props) => <GoogleRouteMap travelMode="BICYCLING" {...props} />
   },
 ];
-
-const sampleData = [
-  {
-    "place": {
-      "createdDate": null,
-      "updatedDate": null,
-      "id": 1,
-      "category": "TOURATTRACTION",
-      "placeGoogleId": "ChIJN2x0fu2ifDUR51BupseGYmE",
-      "name": "국립중앙박물관",
-      "address": "대한민국 서울특별시 용산구 서빙고로 137",
-      "lat": 37.523,
-      "lng": 126.980,
-      "rating": 2.7,
-      "phoneNumber": "02-2077-9000",
-      "webSite": "https://www.museum.go.kr/",
-      "openingHours": [
-        "월요일: 오전 10:00 ~ 오후 6:00",
-        "화요일: 오전 10:00 ~ 오후 6:00",
-        "수요일: 오전 10:00 ~ 오후 9:00",
-        "목요일: 오전 10:00 ~ 오후 6:00",
-        "금요일: 오전 10:00 ~ 오후 6:00",
-        "토요일: 오전 10:00 ~ 오후 9:00",
-        "일요일: 오전 10:00 ~ 오후 6:00"
-      ],
-      "priceLevel": "가격정보 없음",
-      "description": null,
-      "itineraryItems": null
-    },
-    "placeDocument": {
-      "id": null,
-      "placeType": null,
-      "placeId": "ChIJN2x0fu2ifDUR51BupseGYmE",
-      "details": null,
-      "attractionType": null,
-      "apiTags": [
-        "박물관"
-      ],
-      "subjectiveTags": [
-        "전통적인"
-      ],
-      "searchFilters": null
-    }
-  },
-  {
-    "place": {
-      "createdDate": null,
-      "updatedDate": null,
-      "id": 2,
-      "category": "RESTAURANT",
-      "placeGoogleId": "ChIJCwhNvwGjfDUR_Sq2kpWoUT4",
-      "name": "경복궁 식당",
-      "address": "대한민국 서울특별시 용산구 서빙고로 137",
-      "lat": 37.575,
-      "lng": 126.976,
-      "rating": 4.7,
-      "phoneNumber": "02-725-6561",
-      "webSite": "https://www.minarirest.com/",
-      "openingHours": [
-        "월요일: 오전 10:00 ~ 오후 10:00",
-        "화요일: 오전 10:00 ~ 오후 10:00",
-        "수요일: 오전 10:00 ~ 오후 10:00",
-        "목요일: 오전 10:00 ~ 오후 10:00",
-        "금요일: 오전 10:00 ~ 오후 10:00",
-        "토요일: 오전 10:00 ~ 오후 10:00",
-        "일요일: 오전 10:00 ~ 오후 10:00"
-      ],
-      "priceLevel": "가격정보 없음",
-      "description": null,
-      "itineraryItems": null
-    },
-    "placeDocument": {
-      "id": null,
-      "placeType": null,
-      "placeId": "ChIJN2x0fu2ifDUR51BupseGYmE",
-      "details": null,
-      "attractionType": null,
-      "restaurantType": [
-        "한식"
-      ],
-      "searchFilters": null
-    }
-  },
-  {
-    "place": {
-      "createdDate": null,
-      "updatedDate": null,
-      "id": 3,
-      "category": "RESTAURANT",
-      "placeGoogleId": "ChIJCwhNvwGjfDUR_Sq2kpWoUT4",
-      "name": "서울숲",
-      "address": "대한민국 서울특별시 용산구 서빙고로 137",
-      "lat": 37.544,
-      "lng": 127.038,
-      "rating": 4.7,
-      "phoneNumber": "02-725-6561",
-      "webSite": "https://www.minarirest.com/",
-      "openingHours": [
-        "월요일: 오전 10:00 ~ 오후 10:00",
-        "화요일: 오전 10:00 ~ 오후 10:00",
-        "수요일: 오전 10:00 ~ 오후 10:00",
-        "목요일: 오전 10:00 ~ 오후 10:00",
-        "금요일: 오전 10:00 ~ 오후 10:00",
-        "토요일: 오전 10:00 ~ 오후 10:00",
-        "일요일: 오전 10:00 ~ 오후 10:00"
-      ],
-      "priceLevel": "가격정보 없음",
-      "description": null,
-      "itineraryItems": null
-    },
-    "placeDocument": {
-      "id": null,
-      "placeType": null,
-      "placeId": "ChIJN2x0fu2ifDUR51BupseGYmE",
-      "details": null,
-      "attractionType": null,
-      "restaurantType": [
-        "한식"
-      ],
-      "searchFilters": null
-    }
-  }
-];
-
 
 const TourRoute = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { totalDays, currentDay } = location.state;
+  const [places, setPlaces] = useState([]);
+  const [routes, setRoutes] = useState([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('orderedPlaces');
+    if (stored) {
+      setPlaces(JSON.parse(stored));
+    }
+  }, []);
+  //console.log(places)
+
   const [activeTab, setActiveTab] = useState(0);
   const activeTabData = TabData.find((tab) => tab.id === activeTab);
   const tabClickHandler = (id) => {
@@ -196,20 +87,43 @@ const TourRoute = () => {
     });
   };
 
-  const [routes, setRoutes] = useState([]);
-  // 동적 할당
-  // const handleRoutesExtracted = (routesFromMap, day) => {
-  //   const withDay = routesFromMap.map((r) => ({ ...r, day }));
-  //   setRoutes((prev) => [...prev, ...withDay]);
-  // };
-  const handleRoutesExtracted = (routesFromMap) => {
-    const grouped = {
-      day: 'Day1',
-      routes: routesFromMap.map(route => ({
-        ...route,
-      }))
-    };
-    setRoutes(prev => [...prev, grouped]);
+  const resetTripData = () => {
+  localStorage.removeItem('tripPlan');
+  localStorage.removeItem('tripPlaces');
+  localStorage.removeItem('orderedPlaces');
+  console.log('여행 데이터 초기화 완료');
+};
+
+  const handleNextDay = () => {
+    const savedPlaces = JSON.parse(localStorage.getItem('tripPlaces') || '[]');
+    const updatedPlaces = [...savedPlaces, places];
+    localStorage.setItem('tripPlaces', JSON.stringify(updatedPlaces));
+
+    console.log(updatedPlaces);
+    //resetTripData();
+
+    navigate('/plan/select', {
+      state: {
+        currentDay: currentDay + 1,
+        totalDays,
+      },
+    });
+  };
+
+  const handleSaveAll = () => {
+    const savedPlaces = JSON.parse(localStorage.getItem('tripPlaces') || '[]');
+    const updatedPlaces = [...savedPlaces, places];
+    localStorage.setItem('tripPlaces', JSON.stringify(updatedPlaces));
+    console.log(updatedPlaces);
+
+    // 전체 일정 저장 처리
+    console.log("전체 일정 저장됨!");
+    navigate('/plan/final', {
+      state: {
+        currentDay: currentDay + 1,
+        totalDays,
+      },
+    });
   };
 
   return (
@@ -218,7 +132,7 @@ const TourRoute = () => {
         <SidebarTop>
           <Information>
             <Date>
-              Day1 {/* 시간 정보 받아와서 출력할 예정  */}
+              Day{currentDay} {/* 시간 정보 받아와서 출력할 예정  */}
             </Date>
             <Area>
               서울시 용산구 {/* 구역 정보 받아와서 출력할 예정  */}
@@ -257,17 +171,17 @@ const TourRoute = () => {
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
           >
-            {sampleData.map((item) => (
-              <List key={item.place?.id}>
+            {places.map((item) => (
+              <List key={item.placeGoogleId}>
                 <ListContent>
                   <Location>
                     <LocationText>
-                      {item.place?.category === "TOURATTRACTION"
+                      {item.category === "TOURATTRACTION"
                         ? <AttractionIc />
-                        : (item.place?.category === "RESTAURANT"
+                        : (item.category === "RESTAURANT"
                           ? <RestaurantIc />
                           : <CafeIc />)}
-                      <Name>{item.place?.name}</Name>
+                      <Name>{item.name}</Name>
                     </LocationText>
                   </Location>
                 </ListContent>
@@ -277,23 +191,32 @@ const TourRoute = () => {
         </SidebarMain>
 
         <SidebarBottom>
-          <BtnPrev>
+          <BtnPrev onClick={() => navigate('/plan/order', {
+            state: {
+              currentDay: currentDay,
+              totalDays,
+            },
+          }
+
+          )}>
             이전
           </BtnPrev>
-          <BtnNext>
-            next
-          </BtnNext>
+          {currentDay < totalDays ? (
+            <BtnNext onClick={handleNextDay}>Day{currentDay + 1}</BtnNext>
+          ) : (
+            <BtnNext onClick={handleSaveAll}>최종 확인</BtnNext>
+          )}
         </SidebarBottom>
       </SidebarL>
 
       <MapContainer>
-        {typeof activeTabData.content === 'function'
-          ? activeTabData.content({
-            places: sampleData,
-            onRoutesExtracted: (routes) => handleRoutesExtracted(routes),
-          })
-          : activeTabData.content}
-
+        {activeTabData.content({
+          places: places,
+          onRoutesExtracted: (grouped) => {
+            setRoutes(prev => [...prev, grouped]);
+          },
+          currentDay: currentDay
+        })}
       </MapContainer>
       <SidebarR $isOpen={isSidebarOpen}>
         <ToggleButtonWrapper>
