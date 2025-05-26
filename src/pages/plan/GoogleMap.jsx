@@ -55,8 +55,8 @@ const GoogleMap = ({ selectedPlace, places = [], mode }) => {
         multipleMarkers.current = [];
 
         // 장소 1개 표시
-        if (selectedPlace?.place?.lat && selectedPlace?.place?.lng) {
-            const { lat, lng, name } = selectedPlace.place;
+        if (selectedPlace?.lat && selectedPlace?.lng) {
+            const { lat, lng, name } = selectedPlace;
             const position = new window.google.maps.LatLng(lat, lng);
 
             markerRef.current = new window.google.maps.Marker({
@@ -73,7 +73,7 @@ const GoogleMap = ({ selectedPlace, places = [], mode }) => {
             const bounds = new window.google.maps.LatLngBounds();
 
             places.forEach((item, i) => {
-                const { lat, lng, name } = item.place;
+                const { lat, lng, name } = item;
                 if (lat && lng) {
                     const position = new window.google.maps.LatLng(lat, lng);
 

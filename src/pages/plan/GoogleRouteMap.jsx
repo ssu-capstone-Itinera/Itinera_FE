@@ -1,25 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styled from "styled-components";
 
-const getRandomColor = () => {
-    const vibrantColors = [
-        '#FF5733', // 빨강
-        '#FF8F1F', // 주황
-        '#FFC300', // 노랑
-        '#28B463', // 초록
-        '#1F618D', // 파랑
-        '#8E44AD', // 보라
-        '#C70039', // 진홍
-        '#00BCD4', // 시안
-        '#FF1493', // 핑크
-        '#7D3C98', // 자주
-    ];
-    const randomIndex = Math.floor(Math.random() * vibrantColors.length);
-    return vibrantColors[randomIndex];
-};
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
-
-const GoogleRouteMap = ({ places = [], onRoutesExtracted }) => {
+const GoogleRouteMap = ({ places = [], onRoutesExtracted, currentDay  }) => {
     const mapRef = useRef(null);
     const mapInstance = useRef(null);
     const directionsRenderers = useRef([]);
@@ -68,12 +59,12 @@ const GoogleRouteMap = ({ places = [], onRoutesExtracted }) => {
         if (!mapLoaded || !mapInstance.current || places.length < 2) return;
         const map = mapInstance.current;
 
-        // 기존 경로 제거
-        directionsRenderers.current.forEach(r => r.setMap(null));
-        directionsRenderers.current = [];
-        // 기존 마커 제거
-        markersRef.current.forEach(m => m.setMap(null));
-        markersRef.current = [];
+        const clearMap = () => {
+            directionsRenderers.current.forEach(r => r.setMap(null));
+            directionsRenderers.current = [];
+            markersRef.current.forEach(m => m.setMap(null));
+            markersRef.current = [];
+        };;
 
         const directionsService = new window.google.maps.DirectionsService();
         directionsServiceRef.current = directionsService;
@@ -82,8 +73,8 @@ const GoogleRouteMap = ({ places = [], onRoutesExtracted }) => {
             const routeSummaries = [];
 
             for (let i = 0; i < places.length - 1; i++) {
-                const origin = places[i].place;
-                const destination = places[i + 1].place;
+                const origin = places[i];
+                const destination = places[i + 1];
                 const color = getRandomColor();
 
                 await new Promise((resolve) => {
@@ -93,7 +84,7 @@ const GoogleRouteMap = ({ places = [], onRoutesExtracted }) => {
                         travelMode: window.google.maps.TravelMode.TRANSIT,
                     }, (result, status) => {
                         if (status === "OK") {
-                            const route = result.routes[0];     
+                            const route = result.routes[0];
                             const leg = route.legs[0];
                             const renderer = new window.google.maps.DirectionsRenderer({
                                 map,
@@ -137,10 +128,10 @@ const GoogleRouteMap = ({ places = [], onRoutesExtracted }) => {
                                 duration: leg.duration,
                                 distance: leg.distance,
                                 steps: leg.steps,
-                                bounds, 
+                                bounds,
                                 color,
                             });
-                            console.log(leg)
+                            //console.log(leg)
 
                         } else {
                             console.error(`경로 실패 ${i}:`, status);
@@ -149,14 +140,26 @@ const GoogleRouteMap = ({ places = [], onRoutesExtracted }) => {
                     });
                 });
             }
-            if (onRoutesExtracted) {
-                onRoutesExtracted(routeSummaries);
+            if (routeSummaries[0].bounds) {
+                setTimeout(() => {
+                    map.fitBounds(routeSummaries[0].bounds);
+                }, 200);
+                setTimeout(() => {
+                    map.panBy(200, 0);
+                }, 300); // 0.5초 대기
             }
-            //console.log(routeSummaries)
+            if (onRoutesExtracted) {
+                const grouped = {
+                    day: `Day${currentDay}`,
+                    routes: routeSummaries,
+                };
+                onRoutesExtracted(grouped);
+                //console.log(grouped);
+            }
         };
         fetchTransitDirections();
     }, [mapLoaded, places]);
-    
+
     return <MapContainer ref={mapRef} />;
 };
 
