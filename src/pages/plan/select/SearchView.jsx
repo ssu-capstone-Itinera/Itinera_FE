@@ -160,8 +160,7 @@ const SearchView = ({ checkedMap, toggleCheckbox, selectedPlace, setSelectedPlac
     const handleCustomSelect = (place) => {
         if (searchType === 'myPlace_address') {
             const userName = prompt("장소 이름을 입력해 주세요", place.address);
-            if (!userName) return;
-            place.name = userName;
+            place.name = userName || "마이 플레이스";
 
             setSearchResults(prev =>
                 prev.map(p => p.placeGoogleId === place.placeGoogleId ? { ...p, name: userName } : p)
@@ -170,6 +169,17 @@ const SearchView = ({ checkedMap, toggleCheckbox, selectedPlace, setSelectedPlac
 
         // 현재 체크 상태 확인
         const isChecked = checkedMap[place.placeGoogleId];
+
+        if(!isChecked){
+             const updatePlace = {
+                ...place,
+                category: "MYPLACE",
+             }
+             handleAddCustomPlace?.(updatePlace);
+        }
+        else {
+            handleRemoveCustomPlace(place.placeGoogleId);
+        }
 
         // 부모 상태 토글
         toggleCheckbox(place.placeGoogleId);

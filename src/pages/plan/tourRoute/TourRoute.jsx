@@ -88,11 +88,15 @@ const TourRoute = () => {
   };
 
   const resetTripData = () => {
-  localStorage.removeItem('tripPlan');
-  localStorage.removeItem('tripPlaces');
-  localStorage.removeItem('orderedPlaces');
-  console.log('여행 데이터 초기화 완료');
-};
+    localStorage.removeItem('tripPlan');
+    localStorage.removeItem('tripPlaces');
+    localStorage.removeItem('orderedPlaces');
+    console.log('여행 데이터 초기화 완료');
+  };
+
+  useEffect(() => {
+    setRoutes([]); // 탭 바뀔 때 기존 상세 경로 초기화
+  }, [activeTab]);
 
   const handleNextDay = () => {
     const savedPlaces = JSON.parse(localStorage.getItem('tripPlaces') || '[]');
