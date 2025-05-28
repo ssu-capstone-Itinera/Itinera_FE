@@ -5,10 +5,12 @@ import Logo from '../assets/icons/Logo.jsx'
 import HomeLogo from '../assets/icons/HomeLogo.jsx';
 import CommunityIcon from '../assets/icons/CommunityIcon.jsx';
 import DayIcon from '../assets/icons/DayIcon.jsx';
-
+import { useNavigate } from 'react-router-dom';
 
 
 const Header_f = () => {
+  const navigate = useNavigate();
+
   return (
     <HeaderContainer>
       <HeaderLogo>
@@ -27,7 +29,7 @@ const Header_f = () => {
           <Text> 일정 생성 </Text>
         </Community>
 
-        <Community>
+        <Community onClick={() => navigate('/community')}>
           <CommunityIcon />
           <Text> 커뮤니티 </Text>
         </Community>
