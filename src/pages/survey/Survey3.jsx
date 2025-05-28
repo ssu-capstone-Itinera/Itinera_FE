@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-const rescategories = {
-  종류: ['한식', '일식', '양식', '중식'],
-  분위기: ['자유로운'],
-};
+const rescategories = [
+  "NONE", "KOREAN_RESTAURANT", "JAPANESE_RESTAURANT", "CHINESE_RESTAURANT", "WESTERN_RESTAURANT",
+  "ASIAN_RESTAURANT", "FAST_FOOD", "VEGETARIAN", "BUFFET", "CAFE"
+];
 
-const cafescategories = {
-  //카페 
-  종류: ['애견 동반', '루프탑', '커피 전문', '베이커리 전문'],
-  분위기: ['심각함'],
-};
+const cafescategories = [
+  "ALLOWS_DOGS", "CURBSIDE_PICKUP", "DINE_IN", "GOOD_FOR_CHILDREN", "GOOD_FOR_GROUPS", "MENU_FOR_CHILDREN",
+  "PARKING_OPTIONS", "RESERVABLE", "SERVES_BEER", "SERVES_COCKTAILS", "SERVES_WINE", "SERVES_BREAKFAST",
+  "SERVES_LUNCH", "SERVES_DINNER", "SERVES_BRUNCH", "SERVES_DESSERT", "SERVES_VEGETARIAN_FOOD"
+];
 
 const Survey3 = () => {
   const [selectedTags, setSelectedTags] = useState([]);
@@ -27,50 +27,43 @@ const Survey3 = () => {
     <Container>
       <Card>
         <Progress />
-        <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '16px' }}>3/3</div>
-        <Title>Q. 식당 유형 선택</Title>
+        <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '16px' }}>4/4</div>
+        <Title>Q. 식당 취향 선택</Title>
         <SubText> 선호하시는 식당의 유형을 선택해주세요</SubText>
+        
+        <Section>
+          <SectionTitle>유형</SectionTitle>
+          <TagList>
+            {rescategories.map(tag => (
+              <Tag
+                key={tag}
+                selected={selectedTags.includes(tag)}
+                onClick={() => toggleTag(tag)}
+              >
+                #{tag}
+              </Tag>
+            ))}
+          </TagList>
+        </Section>
 
-        {Object.entries(rescategories).map(([rescategories, tags]) => (
-          <Section key={rescategories}>
-            <SectionTitle>{rescategories}</SectionTitle>
-            <TagList>
-              {tags.map(tag => (
-                <Tag
-                  key={tag}
-                  selected={selectedTags.includes(tag)}
-                  onClick={() => toggleTag(tag)}
-                >
-                  #{tag}
-                </Tag>
-              ))}
-
-            </TagList>
-          </Section>
-        ))}
-
-        <Title>Q. 카페 유형 선택</Title>
+        <Title>Q. 카페 취향 선택</Title>
         <SubText> 선호하시는 카페의 유형을 선택해주세요</SubText>
-        {Object.entries(cafescategories).map(([cafescategories, tags]) => (
-          <Section key={cafescategories}>
-            <SectionTitle>{cafescategories}</SectionTitle>
-            <TagList>
-              {tags.map(tag => (
-                <Tag
-                  key={tag}
-                  selected={selectedTags.includes(tag)}
-                  onClick={() => toggleTag(tag)}
-                >
-                  #{tag}
-                </Tag>
-              ))}
-
-            </TagList>
-          </Section>
-        ))}
-
+        <Section>
+          <SectionTitle>유형</SectionTitle>
+          <TagList>
+            {cafescategories.map(tag => (
+              <Tag
+                key={tag}
+                selected={selectedTags.includes(tag)}
+                onClick={() => toggleTag(tag)}
+              >
+                # {tag}
+              </Tag>
+            ))}
+          </TagList>
+        </Section>
         <NavButtons>
-          <Button onClick={() => navigate('/survey/2')}>이전</Button>
+          <Button onClick={() => navigate('/survey/3')}>이전</Button>
           <Button>제출</Button>
         </NavButtons>
       </Card>
@@ -82,17 +75,22 @@ export default Survey3;
 
 const Container = styled.div`
   background-color: #EBFAFB;
-  min-height: 100vh;
+
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+
+  //justify-content: center;
   align-items: center;
+  
+  padding: 100px 0px;
+  min-height: 950px;
 `;
 
 const Card = styled.div`
   background: white;
   border-radius: 12px;
   padding: 40px;
-  width: 700px;
+  width: 785px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 `;
 
