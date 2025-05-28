@@ -1,5 +1,7 @@
-import React from 'react'
 import styled from 'styled-components';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import useAuthStore from '../store/authStore.js';
 
 import Logo from '../assets/icons/Logo.jsx'
 import HomeLogo from '../assets/icons/HomeLogo.jsx';
@@ -7,34 +9,83 @@ import CommunityIcon from '../assets/icons/CommunityIcon.jsx';
 import DayIcon from '../assets/icons/DayIcon.jsx';
 
 
+const Header_f = ({ padding }) => {
+  const user = useAuthStore((state) => state.user);
 
-const Header_f = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isHome = location.pathname === '/';
+  const planPath = [
+    '/survey/1','/survey/2','/survey/3','/survey/4',
+    '/plan/1', '/plan/2', '/plan/3', '/plan/4'
+  ];
+  const isPlan = planPath.includes(location.pathname);
+  const isCommunity = location.pathname === '/community';
+
+  const isLogin = location.pathname === '/login';
+  const isSignup = location.pathname === '/signup';
+  const isMypage = location.pathname === '/mypage';
+
   return (
-    <HeaderContainer>
-      <HeaderLogo>
+    <HeaderContainer $padding={padding}>
+      <HeaderLogo
+        onClick={() => { if (!isHome) navigate('/'); }}
+        $active={isHome}>
         <Logo />
         <Title> Itinera </Title>
       </HeaderLogo>
 
       <ClickContainer>
-        <HomeContainer>
+        <Button
+          onClick={() => { if (!isHome) navigate('/'); }}
+          $active={isHome}>
           <HomeLogo />
           <Text> 홈 </Text>
-        </HomeContainer>
+        </Button>
 
-        <Community>
+        <Button
+          onClick={() => { if (!isPlan) navigate('/survey/1'); }}
+          $active={isPlan}>
           <DayIcon />
           <Text> 일정 생성 </Text>
-        </Community>
+        </Button>
 
-        <Community>
+        <Button
+          // onClick={() => { if (!isCommunity) navigate('/community'); }}
+          $active={isCommunity}>
           <CommunityIcon />
           <Text> 커뮤니티 </Text>
-        </Community>
+        </Button>
 
         <LoginContainer>
-          <Login> 로그인 </Login>
-          <Signup> 회원가입 </Signup>
+          {user ? (
+            <ProfileBtn
+              onClick={() => { if (!isMypage) navigate('/mypage'); }}
+              $active={isMypage}>
+              <img src={user.profileImage || '/default-profile.png'} />
+            </ProfileBtn>
+          ) : (<>
+            <Login
+              onClick={() => { if (!isLogin) navigate('/login'); }}
+              $active={isLogin}>
+              로그인
+            </Login>
+            <Signup
+              onClick={() => { if (!isSignup) navigate('/signup'); }}
+              $active={isSignup}>
+              회원가입
+            </Signup>
+          </>)}
+          {/* {user ? (
+            <>
+            <Login> 로그인 </Login>
+            <Signup> 회원가입 </Signup>
+              
+            </>
+          ) : (<>
+                <ProfileImg src= "/images/sample.png" />
+          </>)} */}
         </LoginContainer>
 
       </ClickContainer>
@@ -54,7 +105,7 @@ const HeaderContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  //padding: 0px 168px;
+   padding: ${(props) => props.$padding || '0px'};
 
   height: 65px;
 
@@ -101,7 +152,7 @@ const ClickContainer = styled.div`
   padding: 0px 32px;
   gap: 32px;
 
-  width: 818px;
+  width: fit-content;
   height: 56px;
 
   /* Inside auto layout */
@@ -111,44 +162,17 @@ const ClickContainer = styled.div`
 
 `
 
-const HomeContainer = styled.div`
-  cursor: pointer;
-
-  /* 버튼 */
-
-  /* Auto layout */
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 0px 24px;
-  gap: 8px;
-
-  width: 120px;
-  min-width: 120px;
-  height: 48px;
-
-  background: #FFFFFF;
-  border-radius: 8px;
-
-`
-
 const Text = styled.div`
   color: #12464C;
   font-size: 18px;
     
   font-style: normal;
-  font-weight: 400;
+  font-weight: ${(props) => (props.$active ? '700' : '400')};
   font-size: 18px;
   line-height: 21px;
 `
 
-const Community = styled.div`
-  cursor: pointer;
-
-  /* 버튼 */
-
-  /* Auto layout */
+const Button = styled.button`
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -156,12 +180,21 @@ const Community = styled.div`
   padding: 0px 24px;
   gap: 8px;
 
-  width: 147px;
-  min-width: 120px;
+  width: fit-content;
   height: 48px;
 
   background: #FFFFFF;
-  border-radius: 8px;
+  border-radius: 16px;
+  border: ${(props) => (props.$active ? '2px solid #165A62' : 'none')};
+  cursor: ${(props) => (props.$active ? 'not-allowed' : 'pointer')};
+
+  &:hover {
+    box-shadow: 0px 0px 4px -1px rgba(0, 0, 0, 0.20);
+  }
+
+  &:active {
+    transform: ${(props) => (props.$active ? 'none' : 'scale(0.97)')};
+  }
 `
 
 const LoginContainer = styled.div`
@@ -177,12 +210,10 @@ const LoginContainer = styled.div`
   padding: 0px;
   gap: 8px;
 
-  width: 248px;
+  width: fit-content;
   height: 32px;
 `
-const Login = styled.div`
-  cursor: pointer;
-
+const Login = styled.button`
   /* 버튼 */
 
   /* Auto layout */
@@ -193,7 +224,7 @@ const Login = styled.div`
   padding: 0px 24px;
   gap: 8px;
 
-  width: 120px;
+  width: fit-content;
   min-width: 120px;
   height: 32px;
 
@@ -202,16 +233,21 @@ const Login = styled.div`
   background: #FFFFFF;
   
   /* Primary/Dark :active */
-  border: 1px solid #165A62;
+  border: 2px solid #165A62;
   border-radius: 8px;
+  
+    cursor: ${(props) => (props.$active ? 'not-allowed' : 'pointer')};
+
+    &:hover {
+    box-shadow: 0px 0px 4px -1px rgba(0, 0, 0, 0.20);
+  }
+
+  &:active {
+    transform: ${(props) => (props.$active ? 'none' : 'scale(0.97)')};
+  }
 `
 
-const Signup = styled.div`
-  cursor: pointer;
-
-    /* 버튼 */
-
-  /* Auto layout */
+const Signup = styled.button`
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -228,4 +264,33 @@ const Signup = styled.div`
   border-radius: 8px;
 
   color:#fff;
+  cursor: ${(props) => (props.$active ? 'not-allowed' : 'pointer')};
+
+  &:hover {
+    box-shadow: 0px 0px 4px -1px rgba(0, 0, 0, 0.20);
+  }
+
+  &:active {
+    transform: ${(props) => (props.$active ? 'none' : 'scale(0.97)')};
+    
+  }
+`
+
+const ProfileBtn = styled.button`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: ${(props) => (props.$active ? '3px solid #165A62' : '2px solid #165A62')};
+
+   overflow: hidden; 
+
+   cursor: ${(props) => (props.$active ? 'not-allowed' : 'pointer')};
+
+    &:hover {
+    box-shadow: 0px 0px 4px -1px rgba(0, 0, 0, 0.20);
+  }
+
+  &:active {
+    transform: ${(props) => (props.$active ? 'none' : 'scale(0.97)')};
+  }
 `
