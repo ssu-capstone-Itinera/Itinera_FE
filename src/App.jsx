@@ -19,8 +19,8 @@ import Survey1 from './pages/survey/Survey1';
 import Survey2 from './pages/survey/Survey2';
 import Survey3 from './pages/survey/Survey3';
 import TourRoute from './pages/plan/tourRoute/TourRoute';
-import Final from './pages/plan/fianl/Final';
 import Community from './pages/community/Community';
+import Final from './pages/plan/final/Final';
 
 function App() {
   const { initialize, initialized } = useAuthStore();
