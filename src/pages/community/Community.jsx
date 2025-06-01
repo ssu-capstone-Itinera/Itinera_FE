@@ -5,17 +5,18 @@ const Community = () => {
   const [posts, setPosts] = useState([
     {
       id: 1,
-      title: '다낭 3박 4일 여행 ✈️',
-      content: '첫날은 미케비치, 다음날 바나힐...',
-      comments: ['좋은 일정이네요!', '바나힐 정말 가고 싶어요!']
+      title: '제주도 2박 3일 여행 코스 🍊',
+      content: '1일차는 함덕해수욕장, 2일차는 우도와 성산일출봉을 다녀왔어요!',
+      comments: ['우도 진짜 예쁘죠~', '성산일출봉은 일출이 정말 장관이에요!']
     }
   ]);
 
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
+  const [commentInputs, setCommentInputs] = useState({});
 
   const handleAddPost = () => {
-    if (!newTitle || !newContent) return;
+    if (!newTitle.trim() || !newContent.trim()) return;
 
     const newPost = {
       id: posts.length + 1,
@@ -23,18 +24,31 @@ const Community = () => {
       content: newContent,
       comments: []
     };
+
     setPosts([newPost, ...posts]);
     setNewTitle('');
     setNewContent('');
+  };
+
+  const handleAddComment = (postId) => {
+    const text = commentInputs[postId];
+    if (!text?.trim()) return;
+
+    const updatedPosts = posts.map((post) =>
+      post.id === postId
+        ? { ...post, comments: [...post.comments, text] }
+        : post
+    );
+    setPosts(updatedPosts);
+    setCommentInputs({ ...commentInputs, [postId]: '' });
   };
 
   return (
     <Wrapper>
       <ContentArea>
         <Title>커뮤니티</Title>
-        <Description>다른 사람들의 여행 계획을 참고하고 나만의 일정을 공유해보세요!</Description>
+        <Description>여행 계획을 공유하고 서로 댓글을 남겨보세요!</Description>
 
-        {/* 게시글 작성 폼 */}
         <FormBox>
           <Input
             placeholder="제목을 입력하세요"
@@ -49,7 +63,6 @@ const Community = () => {
           <PostButton onClick={handleAddPost}>게시하기</PostButton>
         </FormBox>
 
-        {/* 게시글 리스트 */}
         <PostList>
           {posts.map((post) => (
             <PostCard key={post.id}>
@@ -59,7 +72,16 @@ const Community = () => {
                 {post.comments.map((comment, idx) => (
                   <Comment key={idx}>💬 {comment}</Comment>
                 ))}
-                <CommentInput placeholder="댓글을 입력하세요..." />
+                <CommentInput
+                  placeholder="댓글을 입력하세요..."
+                  value={commentInputs[post.id] || ''}
+                  onChange={(e) =>
+                    setCommentInputs({ ...commentInputs, [post.id]: e.target.value })
+                  }
+                />
+                <CommentButton onClick={() => handleAddComment(post.id)}>
+                  댓글 작성
+                </CommentButton>
               </CommentSection>
             </PostCard>
           ))}
@@ -73,13 +95,13 @@ export default Community;
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 998px;
+  min-height: 100vh; 
   background-color: #EBFAFB;
   display: flex;
   justify-content: center;
   padding: 48px 0;
   box-sizing: border-box;
-  overflow-y: auto;
+
 `;
 
 const ContentArea = styled.div`
@@ -107,6 +129,10 @@ const FormBox = styled.div`
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   margin-bottom: 32px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 const Input = styled.input`
@@ -129,17 +155,17 @@ const Textarea = styled.textarea`
 `;
 
 const PostButton = styled.button`
-  background-color: #165A62;
+  align-self: flex-end;
+  background-color: #2696A3;
   color: white;
   font-size: 16px;
   padding: 10px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  float: right;
 
   &:hover {
-    background-color: #12464C;
+    background-color: #1E7882;
   }
 `;
 
@@ -147,6 +173,8 @@ const PostList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
+  
+
 `;
 
 const PostCard = styled.div`
@@ -154,6 +182,7 @@ const PostCard = styled.div`
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 24px;
 `;
 
 const PostTitle = styled.h2`
@@ -186,4 +215,20 @@ const CommentInput = styled.input`
   border: 1px solid #bbb;
   border-radius: 8px;
   margin-top: 8px;
+`;
+
+const CommentButton = styled.button`
+  margin-top: 8px;
+  background-color: #2696A3;
+  color: white;
+  font-size: 14px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  float: right;
+
+  &:hover {
+    background-color: #1E7882;
+  }
 `;
