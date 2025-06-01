@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import useAuthStore from '../store/authStore.js';
 
@@ -7,7 +7,7 @@ import Logo from '../assets/icons/Logo.jsx'
 import HomeLogo from '../assets/icons/HomeLogo.jsx';
 import CommunityIcon from '../assets/icons/CommunityIcon.jsx';
 import DayIcon from '../assets/icons/DayIcon.jsx';
-
+import { useNavigate } from 'react-router-dom';
 
 const Header_f = ({ padding }) => {
   const user = useAuthStore((state) => state.user);
@@ -17,7 +17,7 @@ const Header_f = ({ padding }) => {
 
   const isHome = location.pathname === '/';
   const planPath = [
-    '/survey/1','/survey/2','/survey/3','/survey/4',
+    '/survey/1', '/survey/2', '/survey/3', '/survey/4',
     '/plan/1', '/plan/2', '/plan/3', '/plan/4'
   ];
   const isPlan = planPath.includes(location.pathname);
@@ -52,7 +52,7 @@ const Header_f = ({ padding }) => {
         </Button>
 
         <Button
-          // onClick={() => { if (!isCommunity) navigate('/community'); }}
+          onClick={() => { if (!isCommunity) navigate('/community'); }}
           $active={isCommunity}>
           <CommunityIcon />
           <Text> 커뮤니티 </Text>
@@ -125,6 +125,7 @@ const HeaderLogo = styled.div`
   align-items: center;
   padding: 0px 32px;
   gap: 32px;
+  cursor: pointer;
 
   width: 240px;
   height: 48px; 
@@ -148,6 +149,7 @@ const ClickContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 
   padding: 0px 32px;
   gap: 32px;
