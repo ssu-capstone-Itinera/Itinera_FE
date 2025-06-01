@@ -10,7 +10,7 @@ function getRandomColor() {
     return color;
 }
 
-const GoogleRouteMap = ({ places = [], onRoutesExtracted, currentDay  }) => {
+const GoogleRouteMap = ({ places = [], onRoutesExtracted, currentDay }) => {
     const mapRef = useRef(null);
     const mapInstance = useRef(null);
     const directionsRenderers = useRef([]);
@@ -59,12 +59,10 @@ const GoogleRouteMap = ({ places = [], onRoutesExtracted, currentDay  }) => {
         if (!mapLoaded || !mapInstance.current || places.length < 2) return;
         const map = mapInstance.current;
 
-        const clearMap = () => {
-            directionsRenderers.current.forEach(r => r.setMap(null));
-            directionsRenderers.current = [];
-            markersRef.current.forEach(m => m.setMap(null));
-            markersRef.current = [];
-        };;
+        directionsRenderers.current.forEach(r => r.setMap(null));
+        directionsRenderers.current = [];
+        markersRef.current.forEach(m => m.setMap(null));
+        markersRef.current = [];
 
         const directionsService = new window.google.maps.DirectionsService();
         directionsServiceRef.current = directionsService;

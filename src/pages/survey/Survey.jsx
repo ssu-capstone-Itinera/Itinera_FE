@@ -1,27 +1,70 @@
 import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 import styled from 'styled-components';
 
 const Survey = () => {
   const navigate = useNavigate();
+
+  const startRef = useRef();
+  const endRef = useRef();
+
+  const isValidDate = (dateStr) => {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(dateStr)) return false;
+
+    const date = new Date(dateStr);
+    return !isNaN(date.getTime());
+  };
+
+  const handleNext = () => {
+    const startDate = startRef.current.value;
+    const endDate = endRef.current.value;
+
+    if (!isValidDate(startDate) || !isValidDate(endDate)) {
+      alert('올바른 날짜 형식(YYYY-MM-DD)으로 입력해주세요.');
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const diffTime = end - start;
+    const tripDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    if (tripDays <= 0) {
+      alert('종료일은 시작일 이후여야 합니다.');
+      return;
+    }
+
+    localStorage.setItem('startDate', startDate);
+    localStorage.setItem('endDate', endDate);
+    localStorage.setItem('tripDays', tripDays);
+
+    navigate('/survey/2');
+  };
   return (
     <Container>
       <Card>
-        <Progress />
-        <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '16px' }}>1/3</div>
-
+        <div>
+          <Progress />
+          <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '16px' }}>1/4</div>
+        </div>
         <Question>
           <Title>Q. 여행 일자</Title>
+          <SubText>주어진 형식에 맞게 여행 일자를 입력해주세요.</SubText>
           <InputContainer>
             <Start>
-              <SubText>시작일</SubText>
+              <SectionTitle>시작일</SectionTitle>
               <InputGroup>
-                <Input type='text' placeholder="YYYY/MM/DD" />
+                <Input type='text' placeholder="YYYY-MM-DD" defaultValue="2025-05-05" ref={startRef} />
               </InputGroup>
             </Start>
 
             <End>
-              <SubText>종료일</SubText>
-              <Input type='text' placeholder="YYYY/MM/DD" />
+              <SectionTitle>종료일</SectionTitle>
+              <InputGroup>
+                <Input type='text' placeholder="YYYY-MM-DD" defaultValue="2025-05-06" ref={endRef} />
+              </InputGroup>
             </End>
           </InputContainer>
         </Question>
@@ -34,13 +77,7 @@ const Survey = () => {
             <div style={{ lineHeight: '42px' }}>명</div>
           </InputGroup>
         </Question>
-
-        <Question>
-          <Title>Q. 여행지 </Title>
-          <Input type="text" defaultValue="용산" />
-        </Question>
-
-        <Button onClick={() => navigate('/survey/2')} >다음</Button>
+        <Button onClick={handleNext} >다음</Button>
       </Card>
     </Container>
   );
@@ -50,18 +87,27 @@ export default Survey;
 
 const Container = styled.div`
   background-color: #EBFAFB;
-  min-height: 100vh;
+
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+
+  //justify-content: center;
   align-items: center;
+  
+  padding: 100px 0px;
+  min-height: 950px;
 `;
 
 const Card = styled.div`
+  display: flex;
+  flex-direction: column;
+
   background: white;
   border-radius: 12px;
   padding: 40px;
   width: 700px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  gap: 8px;
 `;
 
 const Progress = styled.div`
@@ -76,7 +122,7 @@ const Progress = styled.div`
     content: '';
     position: absolute;
     height: 100%;
-    width: 33%;
+    width: 25%;
     background-color: #32C8D9;
     border-radius: 4px;
   }
@@ -97,7 +143,13 @@ const End = styled.div`
   display: flex;
   flex-direction: column;
 `
-
+const SectionTitle = styled.p`
+  font-size: 16px;
+  font-weight: 700;
+  color: #424242;
+  margin-left: 32px;
+  margin-bottom: 16px;
+`;
 const Question = styled.div`
   margin-bottom: 24px;
 `;
@@ -109,15 +161,18 @@ const Title = styled.h2`
 `;
 
 const SubText = styled.p`
-  margin-left: 32px;
   font-size: 18px;
   color: #424242;
+  margin-left: 32px;
   margin-bottom: 16px;
 `;
 
 const InputGroup = styled.div`
   display: flex;
   gap: 16px;
+
+  margin-bottom: 24px;
+  margin-left: 32px;
 `;
 
 const Input = styled.input`
@@ -125,11 +180,12 @@ const Input = styled.input`
   border: 1px solid #407b80;
   border-radius: 12px;
   flex: 1;
+  font-family: Pretendard;
   font-size: 14px;
 `;
 
 const SmallInput = styled(Input)`
-  width: 60px;
+  width: fit-content;
   text-align: center;
 `;
 
@@ -142,5 +198,4 @@ const Button = styled.button`
   font-size: 18px;
   width: 120px;
   cursor: pointer;
-
-`;
+`
