@@ -125,6 +125,7 @@ const HeaderLogo = styled.div`
   align-items: center;
   padding: 0px 32px;
   gap: 32px;
+  cursor: pointer;
 
   width: 240px;
   height: 48px; 
@@ -148,6 +149,7 @@ const ClickContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 
   padding: 0px 32px;
   gap: 32px;
