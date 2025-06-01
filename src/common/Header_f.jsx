@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import useAuthStore from '../store/authStore.js';
 
