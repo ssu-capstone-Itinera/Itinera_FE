@@ -5,8 +5,10 @@ import App from './App.jsx'
 import GlobalStyles from './styles/GlobalStyle.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
+  <>
     <GlobalStyles />
     <App />
-  </StrictMode>,
+  </>
+  // </StrictMode>,
 )
