@@ -1,29 +1,41 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
 const useAuthStore = create((set) => ({
-    user: null,
-    login: (userData) => {
-        const {
-            accessToken,
-            refreshToken,
-            accessTokenExpiration,
-            refreshTokenExpiration,
-            ...userInfo
-        } = userData;
+  user: null,
+  accessToken: null,
+  refreshToken: null,
+  initialized: false,
 
-        // 로컬스토리지에 저장
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(userInfo));
+  initialize: () => {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const user = localStorage.getItem('user');
 
-        set({ user: userInfo });
-    },
-    logout: () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        set({ user: null })
-    },
+    if (accessToken && refreshToken && user) {
+      set({
+        accessToken,
+        refreshToken,
+        user: JSON.parse(user),
+        initialized: true,
+      });
+    } else {
+      set({ initialized: true });
+    }
+  },
+
+  login: ({ accessToken, refreshToken, ...userInfo }) => {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('user', JSON.stringify(userInfo));
+
+    set({ accessToken, refreshToken, user: userInfo });
+  },
+
+  logout: () => {
+    localStorage.clear();
+    set({ user: null, accessToken: null, refreshToken: null });
+    window.location.href = '/login'; // 로그아웃 후 로그인 페이지 이동
+  },
 }));
 
-export default useAuthStore
+export default useAuthStore;
