@@ -11,6 +11,7 @@ import Home from './pages/home/Home';
 import Signup from './pages/user/Signup';
 import Login from './pages/user/Login';
 import Mypage from './pages/user/Mypage';
+import TripCheck from './pages/plan/final/TripCheck';
 import Select from './pages/plan/select/Select';
 import Order from './pages/plan/order/Order';
 import Survey from './pages/survey/Survey';
@@ -18,22 +19,18 @@ import Survey1 from './pages/survey/Survey1';
 import Survey2 from './pages/survey/Survey2';
 import Survey3 from './pages/survey/Survey3';
 import TourRoute from './pages/plan/tourRoute/TourRoute';
-import Final from './pages/plan/fianl/Final';
+import Final from './pages/plan/final/Final';
 
 function App() {
-  const login = useAuthStore((state) => state.login);
+  const { initialize, initialized } = useAuthStore();
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    const user = localStorage.getItem('user');
-    if (accessToken && user) {
-      login({
-        ...JSON.parse(user),
-        accessToken,
-        refreshToken: localStorage.getItem('refreshToken'),
-      });
-    }
-  }, [login]);
+    initialize();
+  }, []);
+
+  if (!initialized) return <div>Loading...</div>;
+
+
 
   return (
     <Router>
@@ -56,6 +53,7 @@ function App() {
           <Route path="/plan/2" element={<Order />} />
           <Route path="/plan/3" element={<TourRoute />} />
           <Route path="/plan/4" element={<Final />} />
+          <Route path="/mytrip/:memberIdParams/:tripIdParams" element={<TripCheck />} />
         </Route>
       </Routes>
     </Router>
