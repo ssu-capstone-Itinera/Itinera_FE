@@ -72,17 +72,21 @@ const Community = () => {
 export default Community;
 
 const Wrapper = styled.div`
-  width: 1584px;
+  width: 100%;
   height: 998px;
   background-color: #EBFAFB;
-  margin: 0 auto;
-  padding: 48px 72px;
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
   box-sizing: border-box;
   overflow-y: auto;
 `;
 
 const ContentArea = styled.div`
   width: 100%;
+  max-width: 900px;
+  padding: 0 24px;
+  box-sizing: border-box;
 `;
 
 const Title = styled.h1`

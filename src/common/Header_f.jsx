@@ -52,7 +52,7 @@ const Header_f = ({ padding }) => {
         </Button>
 
         <Button
-          // onClick={() => { if (!isCommunity) navigate('/community'); }}
+          onClick={() => { if (!isCommunity) navigate('/community'); }}
           $active={isCommunity}>
           <CommunityIcon />
           <Text> 커뮤니티 </Text>
