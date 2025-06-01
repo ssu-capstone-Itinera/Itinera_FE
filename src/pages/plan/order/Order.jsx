@@ -3,23 +3,25 @@ import styled from "styled-components";
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+import { fetchDetail } from "../../../api/getPlaceDetail";
+
 import useScroll from '../../../hooks/useScroll';
 
+import HeartIc from "../../../assets/icons/HeartIc";
 import CafeIc from "../../../assets/icons/CafeIc";
 import RestaurantIc from '../../../assets/icons/RestaurantIc';
 import AttractionIc from '../../../assets/icons/AttrantionIc';
+const categoryIcons = {
+  TOURATTRACTION: <AttractionIc />,
+  RESTAURANT: <RestaurantIc />,
+  CAFE: <CafeIc />,
+};
+
 import DragIc from "../../../assets/icons/DragIc";
 
 import PlaceDetail from "../PlaceDetail";
 
 import GoogleMap from "../GoogleMap";
-
-const TagData = [
-  { id: 0, name: "태그1" },
-  { id: 1, name: "태그2" },
-  { id: 2, name: "태그3" },
-  { id: 3, name: "태그4" },
-];
 
 const spSelected = [
   {
@@ -65,7 +67,10 @@ const spSelected = [
 const Order = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { totalDays, currentDay } = location.state;
+  const { currentDay, tagData, } = location.state;
+
+  const mainTourPlaces = JSON.parse(localStorage.getItem('mainTourPlace') || '[]');
+  const mainTourPlace = mainTourPlaces[currentDay - 1] || '서울';
 
   const getInitialPlaces = () => {
     const saved = localStorage.getItem('orderedPlaces');
@@ -84,11 +89,12 @@ const Order = () => {
 
   const handleNext = () => {
     if (places == null) return;
-    navigate('/plan/route',{
+    navigate('/plan/3', {
       state: {
-        totalDays: totalDays,
         currentDay: currentDay,
-      }});
+        tagData: tagData,
+      }
+    });
   };
 
   const [selectedPlace, setSelectedPlace] = useState(null);
@@ -103,28 +109,35 @@ const Order = () => {
   } = useScroll();
 
   const handleClick = (item) => {
-    if (selectedPlace?.placeId === item.placeId) {
+    if (selectedPlace?.placeGoogleId === item.placeGoogleId) {
       // 이미 선택된 장소를 다시 누르면 닫기
       setSelectedPlace(null);
       setIsSidebarOpen(false);
     } else {
       // 새 장소를 선택하면 열기
       setSelectedPlace(item);
-      setIsSidebarOpen(true);
+      if (item?.category != "MY_PLACE")
+        setIsSidebarOpen(true);
     }
   }
+
   //get /api/vi/place/{googleId}
   const [placeDetail, setPlaceDetail] = useState(null); // 👈 상세 정보
   const [isDetailLoading, setIsDetailLoading] = useState(false);
 
   useEffect(() => {
-    if (!selectedPlace) return;
+    if (!selectedPlace?.placeGoogleId || (selectedPlace?.category === "MY_PLACE")) return;
+    console.log(selectedPlace?.placeGoogleId);
 
     const fetchDetailData = async () => {
       setIsDetailLoading(true);
       try {
-        const detail = await fetchDetail(selectedPlace.googleId); // 또는 placeId
-        setPlaceDetail(detail);
+        const detail = await fetchDetail(selectedPlace.placeGoogleId);
+        //const parsedRes = JSON.parse(detail);
+        const parts = detail.split(/(?=\{)/g); // 각 JSON 객체로 나누기
+        const places = parts.map(json => JSON.parse(json));
+        setPlaceDetail(places[0]);
+        console.log(places[0]);
       } catch (err) {
         console.error('상세 정보 로딩 실패:', err);
       } finally {
@@ -133,7 +146,7 @@ const Order = () => {
     };
 
     fetchDetailData();
-  }, [selectedPlace]);
+  }, [selectedPlace?.placeGoogleId]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => {
@@ -183,16 +196,16 @@ const Order = () => {
         <SidebarTop>
           <Information>
             <Date>
-              Day{currentDay} {/* 시간 정보 받아와서 출력할 예정  */}
+              Day{currentDay}
             </Date>
             <Area>
-              서울시 용산구 {/* 구역 정보 받아와서 출력할 예정  */}
+              {mainTourPlace}
             </Area>
           </Information>
           <Tags>
-            {TagData.map((tag) => (
-              <TagContent key={tag.id}>
-                #{tag.name}
+            {tagData.map((tag, index) => (
+              <TagContent key={index}>
+                #{tag.label}
               </TagContent>
             ))}
           </Tags>
@@ -210,21 +223,17 @@ const Order = () => {
             onMouseMove={handleMouseMove}
           >
             {places.map((item, index) => (
-              <List key={item.placeId}
+              <List key={item.placeGoogleId}
                 draggable
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragEnter={(e) => handleDragEnter(e, index)}
                 onDragEnd={handleDragEnd}>
                 <ListContent>
                   <Location
-                    $isActiveItem={selectedPlace?.placeId === item.placeId}
+                    $isActiveItem={selectedPlace?.placeGoogleId === item.placeGoogleId}
                     onClick={() => handleClick(item)}>
                     <LocationText>
-                      {item.category === "TOURATTRACTION"
-                        ? <AttractionIc />
-                        : (item.category === "RESTAURANT"
-                          ? <RestaurantIc />
-                          : <CafeIc />)}
+                      {categoryIcons[item.category] ?? <HeartIc />}
                       <Name>{item.name}</Name>
                     </LocationText>
                     <DragHandle
@@ -242,10 +251,9 @@ const Order = () => {
         </SidebarMain>
 
         <SidebarBottom>
-          <BtnPrev onClick={() => navigate('/plan/select',{
+          <BtnPrev onClick={() => navigate('/plan/1', {
             state: {
               currentDay: currentDay,
-              totalDays,
             },
           })}>
             이전
@@ -268,7 +276,7 @@ const Order = () => {
         <PlaceDetailWrapper>
           {isSidebarOpen && (
             <PlaceDetail
-              detail={spSelected}
+              detail={placeDetail}
               loading={isDetailLoading} />
           )}
         </PlaceDetailWrapper>
@@ -355,11 +363,11 @@ const Date = styled.div`
 const Area = styled.div`
   /* 서울시 용산구 */
 
-  width: 130px;
+  width: fit-content;
   height: 29px;
 
   font-weight: 700;
-  font-size: 24px;
+  font-size: 28px;
   line-height: 29px;
 
   color: #FFFFFF;

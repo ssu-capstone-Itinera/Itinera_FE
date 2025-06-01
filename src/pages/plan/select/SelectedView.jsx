@@ -1,11 +1,17 @@
 import styled from "styled-components";
-
+import useScroll from '../../../hooks/useScroll';
 
 import DotIcon from '../../../assets/icons/DotIcon';
 import Marker from "../../../assets/icons/Marker";
 
-const SelectedView = ({ data, checkedMap, toggleCheckbox, selectedPlace, setSelectedPlace, setIsSidebarOpen}) => {
-  const selected = data.filter((item) => checkedMap[item.placeGoogleId]);
+const SelectedView = ({ data, checkedMap, toggleCheckbox, selectedPlace, setSelectedPlace, setIsSidebarOpen }) => {
+  const {
+    scrollRef,
+    handleMouseDown,
+    handleMouseLeave,
+    handleMouseUp,
+    handleMouseMove,
+  } = useScroll();
 
   const handleClick = (item) => {
     if (selectedPlace?.placeGoogleId === item.placeGoogleId) {
@@ -15,39 +21,80 @@ const SelectedView = ({ data, checkedMap, toggleCheckbox, selectedPlace, setSele
     } else {
       // 새 장소를 선택하면 열기
       setSelectedPlace(item);
-      setIsSidebarOpen(true);
+      if (item?.category != "MY_PLACE")
+        setIsSidebarOpen(true);
     }
   }
 
-  return data.map((item) => (
-    <List key={item.placeGoogleId}>
-      <ListContent>
-        <Location
-          $isActiveItem={selectedPlace?.placeGoogleId === item.placeGoogleId}
-          onClick={() => handleClick(item)}>
-          <LocationText>
-            {selectedPlace?.placeGoogleId === item.placeGoogleId
-              ? <Marker />
-              : <DotIcon />}
-            <Name>{item.name}</Name>
-          </LocationText>
+  return (
+    <ListScrollWrapper
+      ref={scrollRef}
+      onMouseDown={handleMouseDown}
+      onMouseLeave={handleMouseLeave}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+    >
+      {data.map((item) => (
+        <List key={item.placeGoogleId}>
+          <ListContent>
+            <Location
+              $isActiveItem={selectedPlace?.placeGoogleId === item.placeGoogleId}
+              onClick={() => handleClick(item)}>
+              <LocationText>
+                {selectedPlace?.placeGoogleId === item.placeGoogleId
+                  ? <Marker />
+                  : <DotIcon />}
+                <Name>{item.name}</Name>
+              </LocationText>
 
-          <CheckboxWrapper>
-            <HiddenCheckbox
-              checked={checkedMap[item.placeGoogleId] || false}
-              onChange={() => toggleCheckbox(item.placeGoogleId)}
-            />
-            <StyledCheckbox $checked={checkedMap[item.placeGoogleId] || false} />
-          </CheckboxWrapper>
-        </Location>
+              <CheckboxWrapper>
+                <HiddenCheckbox
+                  checked={checkedMap[item.placeGoogleId] || false}
+                  onChange={() => toggleCheckbox(item.placeGoogleId)}
+                />
+                <StyledCheckbox $checked={checkedMap[item.placeGoogleId] || false} />
+              </CheckboxWrapper>
+            </Location>
 
-        {/* <Description>{item.description}</Description> */}
-      </ListContent>
-    </List>
-  ));
-};
+            {/* <Description>{item.description}</Description> */}
+          </ListContent>
+        </List>
+
+      ))}
+    </ListScrollWrapper>
+  );
+}
 export default SelectedView;
+const ListScrollWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
 
+  width: 504px;
+  max-height: 548px;
+
+  overflow-y: scroll;
+
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+
+  -webkit-overflow-scrolling: touch;
+
+  &.active {
+    cursor: grabbing;
+  }
+
+  &::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #E0E0E0;
+    border: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #ffffff;  /*스크롤바 뒷 배경 색상*/
+}
+`
 const List = styled.div`
   /* 리스트*/
 

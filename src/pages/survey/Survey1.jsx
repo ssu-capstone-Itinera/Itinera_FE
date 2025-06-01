@@ -26,7 +26,7 @@ const Survey = () => {
             return;
         }
         localStorage.setItem('mainTourPlace', JSON.stringify(locations));
-        //console.log(locations); (2) ['서울', '서울']
+        //console.log(locations); //(2) ['서울', '서울']
         navigate('/survey/3');
     };
 
@@ -80,10 +80,9 @@ const Container = styled.div`
 const Card = styled.div`
   background: white;
   border-radius: 12px;
-  padding: 40px;
-  width: 700px;
+  padding: 48px 56px;
+  width: 785px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    gap: 8px;
 `;
 
 const Progress = styled.div`
@@ -98,7 +97,7 @@ const Progress = styled.div`
     content: '';
     position: absolute;
     height: 100%;
-    width: 25%;
+    width: 50%;
     background-color: #32C8D9;
     border-radius: 4px;
   }

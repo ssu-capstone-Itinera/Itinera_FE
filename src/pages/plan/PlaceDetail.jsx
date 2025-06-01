@@ -9,9 +9,24 @@ import DollarIc from "../../assets/icons/DollarIc";
 import PhoneIc from "../../assets/icons/PhoneIc";
 import WebIc from "../../assets/icons/WebIc";
 
+import {
+    tourattractionTagList,
+    subjectiveTagList,
+    rescategories,
+    cafescategories,
+} from '../../contants/tagList';
+
+const tagMap = [
+    ...tourattractionTagList.flatMap(group => group.tags),
+    ...subjectiveTagList,
+    ...rescategories.flatMap(group => group.tags),
+    ...cafescategories.flatMap(group => group.tags),
+];
+
 const PlaceDetail = ({ detail, loading }) => {
     if (loading) return <Container>로딩 중...</Container>;
     if (!detail) return <Container>데이터 없음</Container>;
+    console.log(detail)
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -25,22 +40,25 @@ const PlaceDetail = ({ detail, loading }) => {
         handleMouseMove,
     } = useScroll();
 
-    const place = detail[0];
-    //console.log(place)
-    const openingHoursList = Array.isArray(place.openingHours)
-        ? place.openingHours.map((entry, i) => {
+    const openingHoursList = Array.isArray(detail.openingHours)
+        ? detail.openingHours.map((entry, i) => {
             const [day, time] = entry.split(": ");
             return { id: i, day, time };
         })
-        : []; // 👈 undefined나 string일 경우 빈 배열 처리
-    //console.log(openingHoursList)
+        : [];
 
-    const tagList = [
-        ...(Array.isArray(place.cafeTags) ? place.cafeTags.filter(tag => tag !== "NONE") : []),
-        ...(Array.isArray(place.tourattractionTags) ? place.tourattractionTags.filter(tag => tag !== "NONE") : []),
-        ...(Array.isArray(place.subjectiveTags) ? place.subjectiveTags.filter(tag => tag !== "NONE") : []),
-        ...(Array.isArray(place.restaurantType) ? place.restaurantType.filter(tag => tag !== "NONE") : []),
+    const selectedValues = [
+        ...(Array.isArray(detail.tourattractionTags) ? detail.tourattractionTags : []),
+        ...(Array.isArray(detail.subjectiveTags) ? detail.subjectiveTags : []),
+        ...(Array.isArray(detail.restaurantType) ? detail.restaurantType : (detail.restaurantType ? [detail.restaurantType] : [])),
+        ...(Array.isArray(detail.cafeTags) ? detail.cafeTags : []),
     ];
+
+    const tagData = selectedValues
+        .map(value => tagMap.find(tag => tag.value === value))
+        .filter(Boolean); 
+
+   // console.log(tagData)
 
 
     return (
@@ -52,16 +70,16 @@ const PlaceDetail = ({ detail, loading }) => {
             onMouseMove={handleMouseMove}>
             <Wrapper>
                 <Title>
-                    <Name> {place.name} </Name>
-                    <Category> {place.category == "TOURATTRACTION" ? "관광명소"
-                        : (place.category == "RESTAURANT" ? "식당"
+                    <Name> {detail.name} </Name>
+                    <Category> {detail.category == "TOURATTRACTION" ? "관광명소"
+                        : (detail.category == "RESTAURANT" ? "식당"
                             : "카페")} </Category>
                 </Title>
                 <TagWrapper>
-                    {tagList.length > 0 ? (
-                        tagList.map((tag, index) => (
+                    {tagData.length > 0 ? (
+                        tagData.map((tag, index) => (
                             <TagList key={index}>
-                                {tag}
+                                {tag.label}
                             </TagList>
                         ))
                     ) : (
@@ -69,10 +87,10 @@ const PlaceDetail = ({ detail, loading }) => {
                     )}
                 </TagWrapper>
                 <RatingWrapper>
-                    <RatingText>{place.rating}</RatingText>
+                    <RatingText>{detail.rating}</RatingText>
                     <StarsWrapper>
                         {[...Array(5)].map((_, i) => {
-                            const diff = place.rating - i;
+                            const diff = detail.rating - i;
                             let fill = 0;
                             if (diff >= 1) fill = 100;
                             else if (diff > 0) fill = diff * 100;
@@ -89,12 +107,9 @@ const PlaceDetail = ({ detail, loading }) => {
                 </RatingWrapper>
             </Wrapper>
             <Wrapper>
-                <ImageInfo src="/images/sample.png" alt="장소 이미지" />
-            </Wrapper>
-            <Wrapper>
                 <DetailListItem>
                     <LocationIcon />
-                    <DetailText> {place.address}</DetailText>
+                    <DetailText> {detail.address}</DetailText>
                 </DetailListItem>
                 <OpeningHourDetail>
                     <DetailListItem>
@@ -104,35 +119,48 @@ const PlaceDetail = ({ detail, loading }) => {
                     {openingHoursList.length > 0 ? (
                         openingHoursList.map((item) => (
                             <OpeningHourList key={item.id}>
-                                <HourText>{item.day}</HourText>
+                                <DayText>{item.day}</DayText>
                                 <HourText>{item.time}</HourText>
                             </OpeningHourList>
                         ))
                     ) : (
-                        <HourText>운영 시간 정보 없음</HourText>
+                        <DetailText>운영 시간 정보 없음</DetailText>
                     )}
                 </OpeningHourDetail>
                 <DetailListItem>
                     <DollarIc />
-                    <DetailText> {place.priceLevel}</DetailText>
+                    {detail.priceLevel ?
+                        <DetailText> {detail.priceLevel}</DetailText>
+                        :
+                        <DetailText> 가격정보 없음</DetailText>
+                    }
                 </DetailListItem>
                 <DetailListItem>
                     <PhoneIc />
-                    <DetailText> {place.phoneNumber}</DetailText>
+                    {detail.phoneNumber ?
+                        <DetailText> {detail.phoneNumber}</DetailText>
+                        :
+                        <DetailText> 전화번호 정보 없음</DetailText>
+                    }
                 </DetailListItem>
                 <DetailListItem>
                     <WebIc />
-                    <DetailText> 
-                        <a href={place.webSite} target="_blank" rel="noopener noreferrr" >
-                            {place.webSite}
-                        </a>
-                    </DetailText>
+                    {detail.webSite ?
+                        <DetailText>
+                            <a href={detail.webSite} target="_blank" rel="noopener noreferrr" >
+                                {detail.webSite}
+                            </a>
+                        </DetailText>
+                        :
+                        <DetailText> 웹사이트 정보 없음</DetailText>
+                    }
+
                 </DetailListItem>
             </Wrapper>
             <ReviewWrapper>
                 <RatingText>리뷰</RatingText>
-                {Array.isArray(place.reviews) && place.reviews.length > 0 ? (
-                    place.reviews.map((review, index) => (
+                {Array.isArray(detail.reviews) && detail.reviews.length > 0 ? (
+                    detail.reviews.map((review, index) => (
                         <ReviewList key={index}>
                             <DetailText>{review}</DetailText>
                         </ReviewList>
@@ -153,6 +181,7 @@ const Container = styled.div`
     height: 885px;
     padding: 24px 32px;
     flex-direction: column;
+    align-items: flex-start;
     gap: 32px;
     background: #FFF;
 
@@ -176,7 +205,6 @@ const Wrapper = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
-    flex: 1 0 0;
     align-self: stretch;
 `
 const Title = styled.div`
@@ -186,6 +214,7 @@ const Title = styled.div`
     align-items: center;
     gap: 16px;
     align-self: stretch;
+    height:fit-content;
 `
 
 const Name = styled.div`
@@ -195,6 +224,8 @@ const Name = styled.div`
     font-style: normal;
     font-weight: 700;
     line-height: normal;
+    height:fit-content;
+    width: 350px;
 `
 const Category = styled.div`
     display: flex;
@@ -209,6 +240,7 @@ const Category = styled.div`
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    width: fit-content;
 `
 
 const TagWrapper = styled.div`
@@ -281,9 +313,17 @@ const OpeningHourDetail = styled.div`
 `
 const OpeningHourList = styled.div`
     display: flex;
-    padding: 0px 40px;
+    padding: 0px 0px 0px 40px;
     align-items: center;
     gap: 30px;
+`
+const DayText = styled.div`
+    color: #12464C;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 32px; /* 160% */  
+    width: 52px;
 `
 const HourText = styled.div`
     color: #12464C;
@@ -291,7 +331,8 @@ const HourText = styled.div`
     font-size: 20px;
     font-style: normal;
     font-weight: 400;
-    line-height: 32px; /* 160% */   
+    line-height: 32px; /* 160% */  
+    width: fit-content;
 `
 const TagList = styled.div`
     display: flex;
