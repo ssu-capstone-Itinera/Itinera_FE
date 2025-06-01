@@ -1,27 +1,41 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-
-const rescategories = [
-  "NONE", "KOREAN_RESTAURANT", "JAPANESE_RESTAURANT", "CHINESE_RESTAURANT", "WESTERN_RESTAURANT",
-  "ASIAN_RESTAURANT", "FAST_FOOD", "VEGETARIAN", "BUFFET", "CAFE"
-];
-
-const cafescategories = [
-  "ALLOWS_DOGS", "CURBSIDE_PICKUP", "DINE_IN", "GOOD_FOR_CHILDREN", "GOOD_FOR_GROUPS", "MENU_FOR_CHILDREN",
-  "PARKING_OPTIONS", "RESERVABLE", "SERVES_BEER", "SERVES_COCKTAILS", "SERVES_WINE", "SERVES_BREAKFAST",
-  "SERVES_LUNCH", "SERVES_DINNER", "SERVES_BRUNCH", "SERVES_DESSERT", "SERVES_VEGETARIAN_FOOD"
-];
+import { rescategories, cafescategories } from '../../contants/tagList';
 
 const Survey3 = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const toggleTag = (tag) => {
+  const toggleTag = (tagValue) => {
     setSelectedTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+      prev.includes(tagValue)
+        ? prev.filter(t => t !== tagValue)
+        : [...prev, tagValue]
     );
   };
+
+  const { tourattractionTagList, subjectiveTagList } = location.state || {};
+
+  const isResTag = (value) => rescategories.some(g => g.tags.some(t => t.value === value));
+  const isCafeTag = (value) => cafescategories.some(g => g.tags.some(t => t.value === value));
+
+  const handleSubmit = () => {
+    const rescategoriesFiltered = selectedTags.filter(tag => isResTag(tag));
+    const cafescategoriesFiltered = selectedTags.filter(tag => isCafeTag(tag));
+
+    const userTags = {
+      tourattractionTagList: tourattractionTagList,
+      subjectiveTagList: subjectiveTagList,
+      restaurantTypeList: rescategoriesFiltered,
+      cafeTagList: cafescategoriesFiltered,
+    };
+    //console.log(userTags);
+    localStorage.setItem('userTags', JSON.stringify(userTags));
+    navigate('/plan/1');
+  };
+
 
   return (
     <Container>
@@ -29,42 +43,46 @@ const Survey3 = () => {
         <Progress />
         <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '16px' }}>4/4</div>
         <Title>Q. 식당 취향 선택</Title>
-        <SubText> 선호하시는 식당의 유형을 선택해주세요</SubText>
-        
-        <Section>
-          <SectionTitle>유형</SectionTitle>
-          <TagList>
-            {rescategories.map(tag => (
-              <Tag
-                key={tag}
-                selected={selectedTags.includes(tag)}
-                onClick={() => toggleTag(tag)}
-              >
-                #{tag}
-              </Tag>
-            ))}
-          </TagList>
-        </Section>
+        <SubText> 선호하는 식당의 취향을 선택해주세요</SubText>
+
+        {rescategories.map((group) => (
+          <Section key={group.type}>
+            <SectionTitle>{group.type}</SectionTitle>
+            <TagList>
+              {group.tags.map(tag => (
+                <Tag
+                  key={tag.value}
+                  selected={selectedTags.includes(tag.value)}
+                  onClick={() => toggleTag(tag.value)}
+                >
+                  #{tag.label}
+                </Tag>
+              ))}
+            </TagList>
+          </Section>
+        ))}
 
         <Title>Q. 카페 취향 선택</Title>
-        <SubText> 선호하시는 카페의 유형을 선택해주세요</SubText>
-        <Section>
-          <SectionTitle>유형</SectionTitle>
-          <TagList>
-            {cafescategories.map(tag => (
-              <Tag
-                key={tag}
-                selected={selectedTags.includes(tag)}
-                onClick={() => toggleTag(tag)}
-              >
-                # {tag}
-              </Tag>
-            ))}
-          </TagList>
-        </Section>
+        <SubText> 선호하는 카페의 취향을 선택해주세요</SubText>
+        {cafescategories.map((group) => (
+          <Section key={group.type}>
+            <SectionTitle>{group.type}</SectionTitle>
+            <TagList>
+              {group.tags.map(tag => (
+                <Tag
+                  key={tag.value}
+                  selected={selectedTags.includes(tag.value)}
+                  onClick={() => toggleTag(tag.value)}
+                >
+                  #{tag.label}
+                </Tag>
+              ))}
+            </TagList>
+          </Section>
+        ))}
         <NavButtons>
           <Button onClick={() => navigate('/survey/3')}>이전</Button>
-          <Button>제출</Button>
+          <Button onClick={handleSubmit}>제출</Button>
         </NavButtons>
       </Card>
     </Container>
@@ -89,7 +107,7 @@ const Container = styled.div`
 const Card = styled.div`
   background: white;
   border-radius: 12px;
-  padding: 40px;
+  padding: 48px 56px;
   width: 785px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 `;

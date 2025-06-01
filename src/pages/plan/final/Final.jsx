@@ -3,196 +3,238 @@ import styled from "styled-components";
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useScroll from '../../../hooks/useScroll';
+import { saveTrip } from "../../../api/Trip-controller";
 
+import HeartIc from "../../../assets/icons/HeartIc";
 import CafeIc from "../../../assets/icons/CafeIc";
 import RestaurantIc from '../../../assets/icons/RestaurantIc';
 import AttractionIc from '../../../assets/icons/AttrantionIc';
+const categoryIcons = {
+  TOURATTRACTION: <AttractionIc />,
+  RESTAURANT: <RestaurantIc />,
+  CAFE: <CafeIc />,
+};
 import SelectedIc from "../../../assets/icons/SelectedIc";
 
 import RouteDetail from "../tourRoute/RouteDetail";
-
 import GoogleRouteMap from "../GoogleRouteMap";
 
-const TagData = [
-    { id: 0, name: "태그1" },
-    { id: 1, name: "태그2" },
-    { id: 2, name: "태그3" },
-    { id: 3, name: "태그4" },
-];
-
 const TourRoute = () => {
-    const {
-        scrollRef,
-        handleMouseDown,
-        handleMouseLeave,
-        handleMouseUp,
-        handleMouseMove,
-    } = useScroll();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { currentDay, tagData } = location.state;
+  const mainTourPlaces = JSON.parse(localStorage.getItem('mainTourPlace') || '[]');
+  const tripDays = parseInt(localStorage.getItem('tripDays'), 10);
 
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const { totalDays, currentDay } = location.state;
-
-    const [places, setPlaces] = useState([]);
-    const [routes, setRoutes] = useState([]);
-
-    useEffect(() => {
-        const storedPlaces = localStorage.getItem('tripPlaces');
-        if (storedPlaces) {
-            setPlaces(JSON.parse(storedPlaces));
-        }
-    }, []);
-
-    const TabData = Array.from({ length: totalDays }, (_, index) => {
-        const dayPlaces = places[index] || [];
-
-        return {
-            id: index,
-            name: `Day${index + 1}`,
-            places: dayPlaces,
-            content: (props) => (
-                <GoogleRouteMap
-                    places={dayPlaces}
-                    {...props}
-                />
-            ),
-        };
-    });
+  const {
+    scrollRef,
+    handleMouseDown,
+    handleMouseLeave,
+    handleMouseUp,
+    handleMouseMove,
+  } = useScroll();
 
 
 
-    const [activeTab, setActiveTab] = useState(0);
-    const activeTabData = TabData.find((tab) => tab.id === activeTab);
-    const tabClickHandler = (id) => {
-        setActiveTab(id);
+  const [places, setPlaces] = useState([]);
+  const [routes, setRoutes] = useState([]);
+
+  useEffect(() => {
+    const storedPlaces = localStorage.getItem('tripPlaces');
+    if (storedPlaces) {
+      setPlaces(JSON.parse(storedPlaces));
     }
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const toggleSidebar = () => {
-        setIsSidebarOpen((prev) => {
-            const willBeClosed = prev === true; // 지금 열려있으면 닫히는 상태로 바뀜
-            if (willBeClosed) {
-                return false;
-            } else {
-                return true;
-            }
-        });
+  }, []);
+
+  const TabData = Array.from({ length: tripDays }, (_, index) => {
+    const dayPlaces = places[index] || [];
+    return {
+      id: index,
+      name: `Day${index + 1}`,
+      places: dayPlaces,
+      content: (props) => {
+        const { key, ...restProps } = props;
+        return (
+          <GoogleRouteMap
+            key={key}
+            places={dayPlaces}
+            {...restProps}
+          />
+        );
+      },
     };
+  });
 
-    useEffect(() => {
-        setRoutes([]); // 탭 바뀔 때 기존 상세 경로 초기화
-    }, [activeTab]);
 
-    const handlePrevDay = () => {
-        localStorage.removeItem('tripPlan');
+
+  const [activeTab, setActiveTab] = useState(0);
+  const activeTabData = TabData.find((tab) => tab.id === activeTab);
+  const tabClickHandler = (id) => {
+    setActiveTab(id);
+  }
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => {
+      const willBeClosed = prev === true; // 지금 열려있으면 닫히는 상태로 바뀜
+      if (willBeClosed) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+  };
+
+  useEffect(() => {
+    setRoutes([]); // 탭 바뀔 때 기존 상세 경로 초기화
+  }, [activeTab]);
+
+  const handlePrevDay = () => {
+    localStorage.removeItem('tripPlan');
+    localStorage.removeItem('tripPlaces');
+    localStorage.removeItem('orderedPlaces');
+
+    alert("일정 작성이 취소되었습니다. 홈으로 돌아갑니다.");
+    navigate('/');
+  };
+
+  const handleFinish = async () => {
+    const titleInput = prompt("여행 제목을 입력하세요", `총 ${tripDays}일간의 여행`);
+    const title = titleInput?.trim() || `총 ${tripDays}일간의 여행`;
+
+    const userStr = localStorage.getItem('user');
+    const storedPlaces = localStorage.getItem('tripPlaces');
+    if (userStr && storedPlaces) {
+      const userObj = JSON.parse(userStr);
+      const memberId = userObj.memberId;
+      const startDate = localStorage.getItem("startDate");
+      const endDate = localStorage.getItem("endDate");
+      const listOfPlaces = JSON.parse(storedPlaces);
+      console.log(listOfPlaces);
+
+      const tripData = {
+        memberId,
+        title,
+        mainTourPlaces,
+        startDate,
+        endDate,
+        isPublic: true,
+        listOfPlaces,
+      };
+      console.log(tripData);
+
+      try {
+        const result = await saveTrip(tripData);
+        console.log('저장 성공:', result);
+        alert('여행 저장 성공!');
+
         localStorage.removeItem('tripPlaces');
         localStorage.removeItem('orderedPlaces');
+        localStorage.removeItem('startDate');
+        localStorage.removeItem('endDate');
+        localStorage.removeItem('mainTourPlace');
+        localStorage.removeItem('tripDays');
+        localStorage.removeItem('userTags');
 
-        alert("일정 작성이 취소되었습니다. 홈으로 돌아갑니다.");
-        navigate('/');
-    };
+        alert("마이페이지로 돌아갑니다.");
+        navigate('/mypage');
+      } catch (error) {
+        alert('저장 실패: ' + error.message);
+      }
+    }
 
-    const handleFinish = () => {
-        localStorage.removeItem('tripPlan');
-        localStorage.removeItem('tripPlaces');
-        localStorage.removeItem('orderedPlaces');
 
-        alert("일정 작성이 완료되었습니다. 마이페이지로 돌아갑니다.");
-        //navigate('/');
-    };
+  };
 
-    return (
-        <Container>
-            <SidebarL>
-                <SidebarTop>
-                    <Information>
-                        <Date>
-                            최종 일정 {/* 시간 정보 받아와서 출력할 예정  */}
-                        </Date>
-                    </Information>
-                    <Tags>
-                        {TagData.map((tag) => (
-                            <TagContent key={tag.id}>
-                                #{tag.name}
-                            </TagContent>
-                        ))}
-                    </Tags>
-                </SidebarTop>
+  return (
+    <Container>
+      <SidebarL>
+        <SidebarTop>
+          <Information>
+            <Date >
+              날짜별 일정 확인하기
+            </Date>
+          </Information>
+          <Tags>
+            {tagData.map((tag, index) => (
+              <TagContent key={index}>
+                #{tag.label}
+              </TagContent>
+            ))}
+          </Tags>
+        </SidebarTop>
 
-                <SidebarMain>
-                    <TabContainer>
-                        {TabData.map((tab) => (
-                            <Tab key={tab.id}
-                                $isActiveTab={tab.id === activeTab}
-                                onClick={() => tabClickHandler(tab.id)}>
-                                <TabIcon
-                                    $isActiveTab={activeTab == tab.id}>
-                                    <SelectedIc />
-                                </TabIcon>
-                                <TabText
-                                    $isActiveTab={activeTab == tab.id}>
-                                    {tab.name}
-                                </TabText>
-                            </Tab>
-                        ))}
-                    </TabContainer>
-                    <ListScrollWrapper
-                        ref={scrollRef}
-                        onMouseDown={handleMouseDown}
-                        onMouseLeave={handleMouseLeave}
-                        onMouseUp={handleMouseUp}
-                        onMouseMove={handleMouseMove}
-                    >
-                        {activeTabData.places.map((item, idx) => (
-                            <List key={item.placeGoogleId || idx}>
-                                <ListContent>
-                                    <Location>
-                                        <LocationText>
-                                            {item.category === "TOURATTRACTION" ? <AttractionIc />
-                                                : item.category === "RESTAURANT" ? <RestaurantIc />
-                                                    : <CafeIc />}
-                                            <Name>{item.name}</Name>
-                                        </LocationText>
-                                    </Location>
-                                </ListContent>
-                            </List>
-                        ))}
-                    </ListScrollWrapper>
-                </SidebarMain>
+        <SidebarMain>
+          <TabContainer>
+            {TabData.map((tab) => (
+              <Tab key={tab.id}
+                $isActiveTab={tab.id === activeTab}
+                onClick={() => tabClickHandler(tab.id)}>
+                <TabIcon
+                  $isActiveTab={activeTab == tab.id}>
+                  <SelectedIc />
+                </TabIcon>
+                <TabText
+                  $isActiveTab={activeTab == tab.id}>
+                  {tab.name}
+                </TabText>
+              </Tab>
+            ))}
+          </TabContainer>
+          <ListScrollWrapper
+            ref={scrollRef}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+          >
+            {activeTabData.places.map((item) => (
+              <List key={item.placeGoogleId}>
+                <ListContent>
+                  <Location>
+                    <LocationText>
+                      {categoryIcons[item.category] ?? <HeartIc />}
+                      <Name>{item.name}</Name>
+                    </LocationText>
+                  </Location>
+                </ListContent>
+              </List>
+            ))}
+          </ListScrollWrapper>
+        </SidebarMain>
 
-                <SidebarBottom>
-                    <BtnPrev onClick={handlePrevDay}>
-                        이전
-                    </BtnPrev>
-                    <BtnNext onClick={handleFinish}>
-                        저장
-                    </BtnNext>
-                </SidebarBottom>
-            </SidebarL>
+        <SidebarBottom>
+          <BtnPrev onClick={handlePrevDay}>
+            전체 취소
+          </BtnPrev>
+          <BtnNext onClick={handleFinish}>
+            저장
+          </BtnNext>
+        </SidebarBottom>
+      </SidebarL>
 
-            <MapContainer key={activeTab}>
-                {activeTabData.content({
-                    onRoutesExtracted: (grouped) => {
-                        setRoutes(prev => [...prev, grouped]);
-                    },
-                    currentDay: activeTabData.id + 1,
-                    key: activeTabData.id
-                })}
-            </MapContainer>
-            <SidebarR $isOpen={isSidebarOpen}>
-                <ToggleButtonWrapper>
-                    <ToggleButton onClick={toggleSidebar}>
-                        {isSidebarOpen ? '▶' : '◀'}
-                    </ToggleButton>
-                </ToggleButtonWrapper>
-                <PlaceDetailWrapper>
-                    {isSidebarOpen && (
-                        <RouteDetail routes={routes} />
-                    )}
-                </PlaceDetailWrapper>
-            </SidebarR>
-        </Container>
-    );
+      <MapContainer key={activeTab}>
+        {activeTabData.content({
+          onRoutesExtracted: (grouped) => {
+            setRoutes(prev => [...prev, grouped]);
+          },
+          currentDay: activeTabData.id + 1,
+          key: activeTabData.id
+        })}
+      </MapContainer>
+      <SidebarR $isOpen={isSidebarOpen}>
+        <ToggleButtonWrapper>
+          <ToggleButton onClick={toggleSidebar}>
+            {isSidebarOpen ? '▶' : '◀'}
+          </ToggleButton>
+        </ToggleButtonWrapper>
+        <PlaceDetailWrapper>
+          {isSidebarOpen && (
+            <RouteDetail routes={routes} />
+          )}
+        </PlaceDetailWrapper>
+      </SidebarR>
+    </Container>
+  );
 }
 
 export default TourRoute
@@ -323,7 +365,7 @@ const SidebarMain = styled.div`
 `
 const TabContainer = styled.div`
   display: flex;  
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
 
   padding: 0 32px;

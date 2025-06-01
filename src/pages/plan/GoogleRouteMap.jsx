@@ -90,8 +90,8 @@ const GoogleRouteMap = ({ places = [], onRoutesExtracted, currentDay }) => {
                                 suppressMarkers: true, // 마커 수동으로 추가
                                 polylineOptions: {
                                     strokeColor: color,
-                                    strokeOpacity: 0.8,
-                                    strokeWeight: 7,
+                                    strokeOpacity: 1,
+                                    strokeWeight: 10,
                                 }
                             });
                             directionsRenderers.current.push(renderer);

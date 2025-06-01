@@ -13,8 +13,6 @@ function Login() {
         password: '',
     });
 
-    const { login: setUser } = useAuthStore();
-
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -25,7 +23,6 @@ function Login() {
             const data = res.data;
 
             useAuthStore.getState().login(data);
-
             alert('로그인 성공!');
             navigate('/');
         } catch (err) {

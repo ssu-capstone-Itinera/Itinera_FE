@@ -1,25 +1,33 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-
-const tourattractionTagList = [
-  "자연", "해변", "산", "공원", "국립공원", "호수", "폭포", "섬", "계곡", "문화역사", "박물관", "미술관", "성당", "교회",
-  "사원", "절", "궁전", "문화유산", "구시가지", "테마파크", "놀이공원", "동물원", "수족관", "식물원", "지역축제", "전통시장",
-  "공연장", "번화가", "온천", "스키장", "골프장", "캠핑장", "트레킹", "서핑", "스노클링", "카약", "패러글라이딩장소", "자전거도로",
-  "쇼핑몰", "야시장", "전망대", "다리", "대학가", "스포츠경기장", "항구", "등대", "애완동물동반가능", "야경명소", "루프탑", "명소"
-];
-const subjectiveTagList = [
-  "한적한", "활발한", "낭만적인", "모험적인", "힐링", "인스타감성", "여유로운", "이국적인", "전통적인"
-];
+import { tourattractionTagList, subjectiveTagList } from '../../contants/tagList';
 
 const Survey2 = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const navigate = useNavigate();
 
-  const toggleTag = (tag) => {
+  const toggleTag = (tagValue) => {
     setSelectedTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+      prev.includes(tagValue)
+        ? prev.filter(t => t !== tagValue)
+        : [...prev, tagValue]
     );
+  };
+
+  const isTourTag = (value) => tourattractionTagList.some(g => g.tags.some(t => t.value === value));
+  const isSubjectiveTag = (value) => subjectiveTagList.some(t => t.value === value);
+
+  const handleNext = () => {
+    const tourattractionTagListFiltered = selectedTags.filter(tag => isTourTag(tag));
+    const subjectiveTagListFiltered = selectedTags.filter(tag => isSubjectiveTag(tag));
+    
+    navigate('/survey/4', {
+      state: {
+        tourattractionTagList: tourattractionTagListFiltered,
+        subjectiveTagList: subjectiveTagListFiltered,
+      },
+    });
   };
 
   return (
@@ -28,40 +36,41 @@ const Survey2 = () => {
         <Progress />
         <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '16px' }}>3/4</div>
         <Title>Q. 관광 명소 취향 선택</Title>
-        <SubText>선호하시는 관광지의 유형을 선택해주세요</SubText>
-
+        <SubText>선호하는 관광지의 취향을 선택해주세요</SubText>
         <Section>
-          <SectionTitle>유형</SectionTitle>
-            <TagList>
-              {tourattractionTagList.map(tag => (
-                <Tag
-                  key={tag}
-                  selected={selectedTags.includes(tag)}
-                  onClick={() => toggleTag(tag)}
-                >
-                  # {tag}
-                </Tag>
-              ))}
-            </TagList>
-          </Section>
-          <Section>
-            <SectionTitle>분위기</SectionTitle>
-            <TagList>
-              {subjectiveTagList.map(tag => (
-                <Tag
-                  key={tag}
-                  selected={selectedTags.includes(tag)}
-                  onClick={() => toggleTag(tag)}
-                >
-                  # {tag}
-                </Tag>
-              ))}
-            </TagList>
-          </Section>
+          <SectionTitle>분위기</SectionTitle>
+          <TagList>
+            {subjectiveTagList.map(tag => (
+              <Tag
+                key={tag.value}
+                selected={selectedTags.includes(tag.value)}
+                onClick={() => toggleTag(tag.value)}
+              >
+                #{tag.label}
+              </Tag>
+            ))}
+          </TagList>
+        </Section>
 
+        {tourattractionTagList.map((group) => (
+          <Section key={group.type}>
+            <SectionTitle>{group.type}</SectionTitle>
+            <TagList>
+              {group.tags.map(tag => (
+                <Tag
+                  key={tag.value}
+                  selected={selectedTags.includes(tag.value)}
+                  onClick={() => toggleTag(tag.value)}
+                >
+                  #{tag.label}
+                </Tag>
+              ))}
+            </TagList>
+          </Section>
+        ))}
         <NavButtons>
           <Button onClick={() => navigate('/survey/2')}>이전</Button>
-          <Button onClick={() => navigate('/survey/4')}>다음</Button>
+          <Button onClick={handleNext}>다음</Button>
         </NavButtons>
       </Card>
     </Container>
@@ -86,7 +95,7 @@ const Container = styled.div`
 const Card = styled.div`
   background: white;
   border-radius: 12px;
-  padding: 40px;
+  padding: 48px 56px;
   width: 785px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 `;

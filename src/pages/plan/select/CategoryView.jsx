@@ -1,12 +1,20 @@
 import styled from "styled-components";
+import useScroll from '../../../hooks/useScroll';
 
 import DotIcon from '../../../assets/icons/DotIcon';
 import Marker from "../../../assets/icons/Marker";
 
 const CategoryView = ({ category, data, checkedMap, toggleCheckbox, selectedPlace, setSelectedPlace, setIsSidebarOpen }) => {
+  const {
+    scrollRef,
+    handleMouseDown,
+    handleMouseLeave,
+    handleMouseUp,
+    handleMouseMove,
+  } = useScroll();
 
   const filtered = data.filter((item) => item.category === category);
- // console.log(filtered);
+  // console.log(filtered);
 
   const handleClick = (item) => {
     if (selectedPlace?.placeGoogleId === item.placeGoogleId) {
@@ -20,37 +28,80 @@ const CategoryView = ({ category, data, checkedMap, toggleCheckbox, selectedPlac
     }
   }
 
-  return filtered.map((item) => (
-    <List key={item.placeGoogleId}>
-      <ListContent>
-        <Location
-          $isActiveItem={selectedPlace?.placeGoogleId === item.placeGoogleId}
-          onClick={() => handleClick(item)}
-        >
-          <LocationText>
-            {selectedPlace?.placeGoogleId === item.placeGoogleId
-              ? <Marker />
-              : <DotIcon />}
-            <Name>{item.name}</Name>
-          </LocationText>
+  return (
+    <ListScrollWrapper
+      ref={scrollRef}
+      onMouseDown={handleMouseDown}
+      onMouseLeave={handleMouseLeave}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+    >
+      {filtered.map((item) => (
 
-          <CheckboxWrapper>
-            <HiddenCheckbox
-              checked={checkedMap[item.placeGoogleId] || false}
-              onClick={(e) => e.stopPropagation()}
-              onChange={() => toggleCheckbox(item.placeGoogleId)}
-            />
-            <StyledCheckbox
-              $checked={checkedMap[item.placeGoogleId] || false}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </CheckboxWrapper>
-        </Location>
-      </ListContent>
-    </List>
-  ));
+        <List key={item.placeGoogleId}>
+          <ListContent>
+            <Location
+              $isActiveItem={selectedPlace?.placeGoogleId === item.placeGoogleId}
+              onClick={() => handleClick(item)}
+            >
+              <LocationText>
+                {selectedPlace?.placeGoogleId === item.placeGoogleId
+                  ? <Marker />
+                  : <DotIcon />}
+                <Name>{item.name}</Name>
+              </LocationText>
+
+              <CheckboxWrapper>
+                <HiddenCheckbox
+                  checked={checkedMap[item.placeGoogleId] || false}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={() => toggleCheckbox(item.placeGoogleId)}
+                />
+                <StyledCheckbox
+                  $checked={checkedMap[item.placeGoogleId] || false}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </CheckboxWrapper>
+            </Location>
+          </ListContent>
+        </List>
+      ))}
+    </ListScrollWrapper>
+  );
 }
+
 export default CategoryView;
+
+const ListScrollWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  width: 504px;
+  max-height: 548px;
+
+  overflow-y: scroll;
+
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+
+  -webkit-overflow-scrolling: touch;
+
+  &.active {
+    cursor: grabbing;
+  }
+
+  &::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #E0E0E0;
+    border: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #ffffff;  /*스크롤바 뒷 배경 색상*/
+}
+`
 
 const List = styled.div`
   /* 리스트*/
@@ -62,7 +113,7 @@ const List = styled.div`
   padding-left: 16px;
 
   //width: 489px;
-  height: 64px;
+  height: fit-content;
   
   flex: 0 0 auto;
   background-color: #ffffff;
@@ -73,8 +124,8 @@ const List = styled.div`
 `
 const ListContent = styled.div`
   display: flex;
-  
   padding: 8px 16px;
+  height: fit-content;
 `
 const Location = styled.div`
 cursor: pointer;
@@ -90,7 +141,8 @@ cursor: pointer;
   gap: 16px;
 
   width: 440px;
-  height: 48px;
+  min-height: 48px;
+  height: fit-content;
   border-radius: 16px;
   
   background: ${({ $isActiveItem }) => ($isActiveItem ? '#EBFAFB' : 'transparent')};
@@ -114,11 +166,13 @@ const LocationText = styled.div`
   gap: 16px;
 
   width: 440px;
-  height: 48px;
+  height: fit-content;
 `
 const Name = styled.div`
   /* 장소 이름 */
 
+  width: 330px;
+  height: fit-content;
   /* Body/18px */
   font-weight: 400;
   font-size: 18px;

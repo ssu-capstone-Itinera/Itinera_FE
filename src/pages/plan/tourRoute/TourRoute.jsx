@@ -4,9 +4,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useScroll from '../../../hooks/useScroll';
 
+import HeartIc from "../../../assets/icons/HeartIc";
 import CafeIc from "../../../assets/icons/CafeIc";
 import RestaurantIc from '../../../assets/icons/RestaurantIc';
 import AttractionIc from '../../../assets/icons/AttrantionIc';
+const categoryIcons = {
+  TOURATTRACTION: <AttractionIc />,
+  RESTAURANT: <RestaurantIc />,
+  CAFE: <CafeIc />,
+};
 
 import AddLocaIc from '../../../assets/icons/AddLocaIc';
 import CarIc from "../../../assets/icons/CarIc";
@@ -16,13 +22,6 @@ import WalkIc from "../../../assets/icons/WalkIc";
 import RouteDetail from "./RouteDetail";
 
 import GoogleRouteMap from "../GoogleRouteMap";
-
-const TagData = [
-  { id: 0, name: "태그1" },
-  { id: 1, name: "태그2" },
-  { id: 2, name: "태그3" },
-  { id: 3, name: "태그4" },
-];
 
 const TabData = [
   {
@@ -48,7 +47,11 @@ const TabData = [
 const TourRoute = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { totalDays, currentDay } = location.state;
+  const { currentDay, tagData } = location.state;
+  const mainTourPlaces = JSON.parse(localStorage.getItem('mainTourPlace') || '[]');
+  const mainTourPlace = mainTourPlaces[currentDay - 1] || '서울';
+  const tripDays = parseInt(localStorage.getItem('tripDays'), 10);
+
   const [places, setPlaces] = useState([]);
   const [routes, setRoutes] = useState([]);
 
@@ -87,12 +90,6 @@ const TourRoute = () => {
     });
   };
 
-  const resetTripData = () => {
-    localStorage.removeItem('tripPlan');
-    localStorage.removeItem('tripPlaces');
-    localStorage.removeItem('orderedPlaces');
-    console.log('여행 데이터 초기화 완료');
-  };
 
   useEffect(() => {
     setRoutes([]); // 탭 바뀔 때 기존 상세 경로 초기화
@@ -106,10 +103,9 @@ const TourRoute = () => {
     console.log(updatedPlaces);
     //resetTripData();
 
-    navigate('/plan/select', {
+    navigate('/plan/1', {
       state: {
         currentDay: currentDay + 1,
-        totalDays,
       },
     });
   };
@@ -121,11 +117,11 @@ const TourRoute = () => {
     console.log(updatedPlaces);
 
     // 전체 일정 저장 처리
-    console.log("전체 일정 저장됨!");
-    navigate('/plan/final', {
+    console.log("전체 일정 확인하러러!");
+    navigate('/plan/4', {
       state: {
         currentDay: currentDay + 1,
-        totalDays,
+        tagData: tagData,
       },
     });
   };
@@ -136,16 +132,16 @@ const TourRoute = () => {
         <SidebarTop>
           <Information>
             <Date>
-              Day{currentDay} {/* 시간 정보 받아와서 출력할 예정  */}
+              Day{currentDay}
             </Date>
             <Area>
-              서울시 용산구 {/* 구역 정보 받아와서 출력할 예정  */}
+              {mainTourPlace}
             </Area>
           </Information>
           <Tags>
-            {TagData.map((tag) => (
-              <TagContent key={tag.id}>
-                #{tag.name}
+            {tagData.map((tag, index) => (
+              <TagContent key={index}>
+                #{tag.label}
               </TagContent>
             ))}
           </Tags>
@@ -180,11 +176,7 @@ const TourRoute = () => {
                 <ListContent>
                   <Location>
                     <LocationText>
-                      {item.category === "TOURATTRACTION"
-                        ? <AttractionIc />
-                        : (item.category === "RESTAURANT"
-                          ? <RestaurantIc />
-                          : <CafeIc />)}
+                      {categoryIcons[item.category] ?? <HeartIc />}
                       <Name>{item.name}</Name>
                     </LocationText>
                   </Location>
@@ -195,17 +187,17 @@ const TourRoute = () => {
         </SidebarMain>
 
         <SidebarBottom>
-          <BtnPrev onClick={() => navigate('/plan/order', {
+          <BtnPrev onClick={() => navigate('/plan/2', {
             state: {
               currentDay: currentDay,
-              totalDays,
+              tripDays,
             },
           }
 
           )}>
             이전
           </BtnPrev>
-          {currentDay < totalDays ? (
+          {currentDay < tripDays ? (
             <BtnNext onClick={handleNextDay}>Day{currentDay + 1}</BtnNext>
           ) : (
             <BtnNext onClick={handleSaveAll}>최종 확인</BtnNext>
@@ -316,11 +308,11 @@ const Date = styled.div`
 const Area = styled.div`
   /* 서울시 용산구 */
 
-  width: 130px;
+  width: fit-content;
   height: 29px;
 
   font-weight: 700;
-  font-size: 24px;
+  font-size: 28px;
   line-height: 29px;
 
   color: #FFFFFF;

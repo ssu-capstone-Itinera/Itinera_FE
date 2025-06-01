@@ -39,6 +39,9 @@ const Survey = () => {
     localStorage.setItem('startDate', startDate);
     localStorage.setItem('endDate', endDate);
     localStorage.setItem('tripDays', tripDays);
+    // console.log(startDate); //yyyy-mm-dd
+    // console.log(endDate); //yyyy-mm-dd
+    // console.log(tripDays); //n
 
     navigate('/survey/2');
   };
@@ -56,14 +59,14 @@ const Survey = () => {
             <Start>
               <SectionTitle>시작일</SectionTitle>
               <InputGroup>
-                <Input type='text' placeholder="YYYY-MM-DD" defaultValue="2025-05-05" ref={startRef} />
+                <Input type='text' placeholder="YYYY-MM-DD" defaultValue = "2025-06-01" ref={startRef} />
               </InputGroup>
             </Start>
 
             <End>
               <SectionTitle>종료일</SectionTitle>
               <InputGroup>
-                <Input type='text' placeholder="YYYY-MM-DD" defaultValue="2025-05-06" ref={endRef} />
+                <Input type='text' placeholder="YYYY-MM-DD" defaultValue = "2025-06-01" ref={endRef} />
               </InputGroup>
             </End>
           </InputContainer>
@@ -99,15 +102,11 @@ const Container = styled.div`
 `;
 
 const Card = styled.div`
-  display: flex;
-  flex-direction: column;
-
   background: white;
   border-radius: 12px;
-  padding: 40px;
-  width: 700px;
+  padding: 48px 56px;
+  width: 785px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  gap: 8px;
 `;
 
 const Progress = styled.div`
